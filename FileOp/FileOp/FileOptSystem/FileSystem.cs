@@ -27,14 +27,22 @@ public class FileSystem : Singleton<FileSystem>
 	#region Function
 	public FileSystem()
 	{
+		ResetFile();
+	}
+
+	public void ResetFile()
+	{
 		m_strFileName = "";
 		m_strFileContent = "";
+		m_nContentStringSize = 0;
 		m_uFileLines = 0;
+		m_strKeyWords = "";
 		if (null == m_listFileLines)
 			m_listFileLines = new List<string>();
 
 		if (null == m_dicThreadContent)
 			m_dicThreadContent = new Dictionary<int, string>();
+
 	}
 
 	public void SetFileName(string strFileName)
@@ -106,17 +114,82 @@ public class FileSystem : Singleton<FileSystem>
 	{
 		for (int i = 0; i < nBlockCount; i++)
 		{
-			string strTemp = m_strFileContent.Substring((i + nSize), nSize);
+			string strTemp = "";
+			if (i < nBlockCount - 1)
+			{
+				strTemp = m_strFileContent.Substring((i * nSize), nSize);
+			}
+			else
+			{
+				strTemp = m_strFileContent.Substring(i * nSize);
+			}
+			
 			m_dicThreadContent.Add(i, strTemp);
 		}
 
+		int nKeyWordsLen = m_strKeyWords.Length;
 		//	string end contained part of key word
 		for(int i = 0; i < nBlockCount; i++)
 		{
-
+			string strContent = m_dicThreadContent[i];
+			string strBegin = strContent.Substring(0, nKeyWordsLen);
+			int nEndPos = -1;
+			if (CheckStringBeginHaveKeyWords(strBegin, ref nEndPos))
+			{
+				if (i > 0)
+				{
+					string strLastContent = m_dicThreadContent[i - 1];
+					int nContentLen = strLastContent.Length;
+					string strEnd = strLastContent.Substring(nContentLen - nKeyWordsLen);
+					int nBeginPos = -1;
+					if (CheckStringEndHaveKeyWords(strEnd, ref nBeginPos))
+					{
+						string strKeyContent = strContent.Substring(0, nEndPos);
+						string strTempContent = strContent.Substring(nEndPos);
+						m_dicThreadContent[i] = strTempContent;
+						m_dicThreadContent[i - 1] += strKeyContent;
+					}	
+				}
+			}
 		}
 
 		return true;
+	}
+
+	public bool CheckStringBeginHaveKeyWords(string strBegin, ref int nEndPos)
+	{
+		int nKeyWordsLen = m_strKeyWords.Length;
+		for(int i = 1; i < nKeyWordsLen; i++)
+		{
+			//	Get keywords character from end point in keys
+			string subKey = m_strKeyWords.Substring(nKeyWordsLen - i);
+			//	get keywords character from begin string
+			string subBeg = strBegin.Substring(0, i);
+			
+			if (subKey == subBeg)
+			{
+				nEndPos = i;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public bool CheckStringEndHaveKeyWords(string strEnd, ref int nBeginPos)
+	{
+		int nKeyWordsLen = m_strKeyWords.Length;
+		for (int i = 1; i < nKeyWordsLen; i++)
+		{
+			string subKey = m_strKeyWords.Substring(0, i);
+			string subEnd = strEnd.Substring(nKeyWordsLen - i);
+			if (subEnd == subKey)
+			{
+				nBeginPos = nKeyWordsLen - i;
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	#endregion

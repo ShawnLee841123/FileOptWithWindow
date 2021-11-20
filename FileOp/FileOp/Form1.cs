@@ -26,8 +26,8 @@ namespace FileOp
 		private void btnOpenFile_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
-			openFileDialog.InitialDirectory = "c:\\";//注意这里写路径时要用c:\\而不是c:\
-			openFileDialog.Filter = "文本文件|*.*|C#文件|*.cs|所有文件|*.*";
+			openFileDialog.InitialDirectory = "e:\\";//注意这里写路径时要用c:\\而不是c:\
+			openFileDialog.Filter = "文本文件|*.*|文本文件|*.txt|所有文件|*.*";
 			openFileDialog.RestoreDirectory = true;
 			openFileDialog.FilterIndex = 1;
 			if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -39,9 +39,12 @@ namespace FileOp
 			}
 		}
 
-		private void btnTakePlaceAll_Click(object sender, EventArgs e)
+		private void BtnTakePlaceAll_Click(object sender, EventArgs e)
 		{
-
+			FileSystem.Ins().SetOperatedKeyWords(this.FindKeyBox.Text);
+			int nBlockCount = 7;
+			int nSize = FileSystem.Ins().AverageStringInThread(nBlockCount);
+			FileSystem.Ins().ConstructOpContentString(nSize, nBlockCount);
 		}
 
 		private void btnTakePlace_Click(object sender, EventArgs e)

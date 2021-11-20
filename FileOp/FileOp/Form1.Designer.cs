@@ -29,11 +29,11 @@ namespace FileOp
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.FindKeyBox = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.btnFind = new System.Windows.Forms.Button();
 			this.label2 = new System.Windows.Forms.Label();
-			this.textBox2 = new System.Windows.Forms.TextBox();
+			this.ReplaceBox = new System.Windows.Forms.TextBox();
 			this.btnTakePlace = new System.Windows.Forms.Button();
 			this.btnTakePlaceAll = new System.Windows.Forms.Button();
 			this.FileContentBox = new System.Windows.Forms.TextBox();
@@ -41,12 +41,12 @@ namespace FileOp
 			this.FileName = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
-			// textBox1
+			// FindKeyBox
 			// 
-			this.textBox1.Location = new System.Drawing.Point(104, 13);
-			this.textBox1.Name = "FindKey";
-			this.textBox1.Size = new System.Drawing.Size(265, 21);
-			this.textBox1.TabIndex = 0;
+			this.FindKeyBox.Location = new System.Drawing.Point(104, 13);
+			this.FindKeyBox.Name = "FindKeyBox";
+			this.FindKeyBox.Size = new System.Drawing.Size(265, 21);
+			this.FindKeyBox.TabIndex = 0;
 			// 
 			// label1
 			// 
@@ -76,12 +76,12 @@ namespace FileOp
 			this.label2.TabIndex = 3;
 			this.label2.Text = "TakePlaceText";
 			// 
-			// textBox2
+			// ReplaceBox
 			// 
-			this.textBox2.Location = new System.Drawing.Point(654, 13);
-			this.textBox2.Name = "TakePlace";
-			this.textBox2.Size = new System.Drawing.Size(317, 21);
-			this.textBox2.TabIndex = 4;
+			this.ReplaceBox.Location = new System.Drawing.Point(654, 13);
+			this.ReplaceBox.Name = "ReplaceBox";
+			this.ReplaceBox.Size = new System.Drawing.Size(317, 21);
+			this.ReplaceBox.TabIndex = 4;
 			// 
 			// btnTakePlace
 			// 
@@ -101,16 +101,15 @@ namespace FileOp
 			this.btnTakePlaceAll.TabIndex = 6;
 			this.btnTakePlaceAll.Text = "TakePlaceAll";
 			this.btnTakePlaceAll.UseVisualStyleBackColor = true;
-			this.btnTakePlaceAll.Click += new System.EventHandler(this.btnTakePlaceAll_Click);
+			this.btnTakePlaceAll.Click += new System.EventHandler(this.BtnTakePlaceAll_Click);
 			// 
 			// FileContentBox
 			// 
 			this.FileContentBox.Location = new System.Drawing.Point(3, 72);
 			this.FileContentBox.Multiline = true;
-			this.FileContentBox.Name = "FileContent";
+			this.FileContentBox.Name = "FileContentBox";
 			this.FileContentBox.Size = new System.Drawing.Size(1231, 624);
 			this.FileContentBox.TabIndex = 7;
-			
 			// 
 			// btnOpenFile
 			// 
@@ -141,11 +140,11 @@ namespace FileOp
 			this.Controls.Add(this.FileContentBox);
 			this.Controls.Add(this.btnTakePlaceAll);
 			this.Controls.Add(this.btnTakePlace);
-			this.Controls.Add(this.textBox2);
+			this.Controls.Add(this.ReplaceBox);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.btnFind);
 			this.Controls.Add(this.label1);
-			this.Controls.Add(this.textBox1);
+			this.Controls.Add(this.FindKeyBox);
 			this.Name = "Form1";
 			this.Text = "FileOp";
 			this.ResumeLayout(false);
@@ -155,11 +154,11 @@ namespace FileOp
 
 		#endregion
 
-		private System.Windows.Forms.TextBox textBox1;
+		private System.Windows.Forms.TextBox FindKeyBox;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button btnFind;
 		private System.Windows.Forms.Label label2;
-		private System.Windows.Forms.TextBox textBox2;
+		private System.Windows.Forms.TextBox ReplaceBox;
 		private System.Windows.Forms.Button btnTakePlace;
 		private System.Windows.Forms.Button btnTakePlaceAll;
 		private System.Windows.Forms.TextBox FileContentBox;
