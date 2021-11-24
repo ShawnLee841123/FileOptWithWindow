@@ -39,6 +39,9 @@ namespace FileOp
 			this.FileContentBox = new System.Windows.Forms.TextBox();
 			this.btnOpenFile = new System.Windows.Forms.Button();
 			this.FileName = new System.Windows.Forms.Label();
+			this.label3 = new System.Windows.Forms.Label();
+			this.ProgressBar = new System.Windows.Forms.ProgressBar();
+			this.ProgressValue = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// FindKeyBox
@@ -130,11 +133,41 @@ namespace FileOp
 			this.FileName.TabIndex = 9;
 			this.FileName.Text = "label3";
 			// 
+			// label3
+			// 
+			this.label3.AutoSize = true;
+			this.label3.Location = new System.Drawing.Point(564, 49);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(53, 12);
+			this.label3.TabIndex = 10;
+			this.label3.Text = "Progress";
+			// 
+			// ProgressBar
+			// 
+			this.ProgressBar.Location = new System.Drawing.Point(638, 50);
+			this.ProgressBar.Name = "ProgressBar";
+			this.ProgressBar.Size = new System.Drawing.Size(424, 10);
+			this.ProgressBar.TabIndex = 11;
+			this.ProgressBar.Value = 30;
+			// 
+			// ProgressValue
+			// 
+			this.ProgressValue.AutoSize = true;
+			this.ProgressValue.Location = new System.Drawing.Point(1086, 48);
+			this.ProgressValue.Name = "ProgressValue";
+			this.ProgressValue.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+			this.ProgressValue.Size = new System.Drawing.Size(23, 12);
+			this.ProgressValue.TabIndex = 12;
+			this.ProgressValue.Text = "30%";
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1236, 708);
+			this.Controls.Add(this.ProgressValue);
+			this.Controls.Add(this.ProgressBar);
+			this.Controls.Add(this.label3);
 			this.Controls.Add(this.FileName);
 			this.Controls.Add(this.btnOpenFile);
 			this.Controls.Add(this.FileContentBox);
@@ -164,6 +197,9 @@ namespace FileOp
 		private System.Windows.Forms.TextBox FileContentBox;
 		private System.Windows.Forms.Button btnOpenFile;
 		private System.Windows.Forms.Label FileName;
+		private System.Windows.Forms.Label label3;
+		private System.Windows.Forms.ProgressBar ProgressBar;
+		private System.Windows.Forms.Label ProgressValue;
 	}
 }
 
