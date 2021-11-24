@@ -43,6 +43,7 @@ public class FileSystem : Singleton<FileSystem>
 		if (null == m_dicThreadContent)
 			m_dicThreadContent = new Dictionary<int, string>();
 
+		
 	}
 
 	public void SetFileName(string strFileName)
