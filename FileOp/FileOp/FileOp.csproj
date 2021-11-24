@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileOptSystem\FileOp\WorkPool.cs" />
+    <Compile Include="FileOptSystem\FileOp\WorkThread.cs" />
     <Compile Include="FileOptSystem\FileSystem.cs" />
     <Compile Include="FileOptSystem\FileOp\FileReader.cs" />
     <Compile Include="FileOptSystem\FileOp\FileWriter.cs" />
