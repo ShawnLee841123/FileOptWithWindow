@@ -19,5 +19,16 @@ public class WorkPool: ThreadPool
 
 		return true;
 	}
+
+	public bool InitialWorkProcess()
+	{
+		for(int i =0; i < threadCount; i++)
+		{
+			((WorkThread)m_Pool[i]).SetFindKeyWords(FileSystem.Ins().m_strKeyWords);
+			((WorkThread)m_Pool[i]).SetReplaceWords(FileSystem.Ins().m_strReplaceWords);
+		}
+
+		return true;
+	}
 }
 

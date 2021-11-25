@@ -29,6 +29,21 @@ public class ThreadPool: Singleton<ThreadPool>
 		return true;
 	}
 
+	virtual public bool StartWork()
+	{
+		if (m_Pool.Count <= 0)
+		{
+			return false;
+		}
+
+		for(int i = 0; i < threadCount; i++)
+		{
+			m_Pool[i].StartThread();
+		}
+
+		return true;
+	}
+
 	virtual public bool StopWork()
 	{
 		for(int i = 0; i < threadCount; i++)

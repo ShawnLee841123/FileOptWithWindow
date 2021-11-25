@@ -19,6 +19,7 @@ public class FileSystem : Singleton<FileSystem>
 
 	#region File Op
 	public string m_strKeyWords { get; protected set; }
+	public string m_strReplaceWords { get; protected set; }
 	public Dictionary<int, string> m_dicThreadContent { get; protected set; }
 	#endregion
 
@@ -78,6 +79,10 @@ public class FileSystem : Singleton<FileSystem>
 		m_strKeyWords = strKey;
 	}
 
+	public void SetOperatedReplaceWords(string strKey)
+	{
+		m_strReplaceWords = strKey;
+	}
 	public bool PreFileOp()
 	{
 		if (!CheckStringValid(m_strKeyWords))
