@@ -11,12 +11,14 @@ namespace FileOp
 		/// <summary>
 		/// 应用程序的主入口点。
 		/// </summary>
+		public static Form1 MyWindow;
 		[STAThread]
 		static void Main()
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new Form1());
+			MyWindow = new Form1();
+			Application.Run(MyWindow);
 		}
 	}
 }

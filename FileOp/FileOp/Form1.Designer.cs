@@ -1,7 +1,7 @@
 
 namespace FileOp
 {
-	partial class Form1
+	public partial class Form1
 	{
 		/// <summary>
 		/// 必需的设计器变量。
@@ -42,6 +42,7 @@ namespace FileOp
 			this.label3 = new System.Windows.Forms.Label();
 			this.ProgressBar = new System.Windows.Forms.ProgressBar();
 			this.ProgressValue = new System.Windows.Forms.Label();
+			this.btnSave = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// FindKeyBox
@@ -73,7 +74,7 @@ namespace FileOp
 			// label2
 			// 
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(562, 15);
+			this.label2.Location = new System.Drawing.Point(471, 15);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(83, 12);
 			this.label2.TabIndex = 3;
@@ -81,14 +82,14 @@ namespace FileOp
 			// 
 			// ReplaceBox
 			// 
-			this.ReplaceBox.Location = new System.Drawing.Point(654, 13);
+			this.ReplaceBox.Location = new System.Drawing.Point(563, 13);
 			this.ReplaceBox.Name = "ReplaceBox";
 			this.ReplaceBox.Size = new System.Drawing.Size(317, 21);
 			this.ReplaceBox.TabIndex = 4;
 			// 
 			// btnTakePlace
 			// 
-			this.btnTakePlace.Location = new System.Drawing.Point(987, 13);
+			this.btnTakePlace.Location = new System.Drawing.Point(896, 13);
 			this.btnTakePlace.Name = "btnTakePlace";
 			this.btnTakePlace.Size = new System.Drawing.Size(75, 23);
 			this.btnTakePlace.TabIndex = 5;
@@ -98,7 +99,7 @@ namespace FileOp
 			// 
 			// btnTakePlaceAll
 			// 
-			this.btnTakePlaceAll.Location = new System.Drawing.Point(1096, 13);
+			this.btnTakePlaceAll.Location = new System.Drawing.Point(1005, 13);
 			this.btnTakePlaceAll.Name = "btnTakePlaceAll";
 			this.btnTakePlaceAll.Size = new System.Drawing.Size(75, 23);
 			this.btnTakePlaceAll.TabIndex = 6;
@@ -136,7 +137,7 @@ namespace FileOp
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(564, 49);
+			this.label3.Location = new System.Drawing.Point(470, 49);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(53, 12);
 			this.label3.TabIndex = 10;
@@ -144,7 +145,7 @@ namespace FileOp
 			// 
 			// ProgressBar
 			// 
-			this.ProgressBar.Location = new System.Drawing.Point(638, 50);
+			this.ProgressBar.Location = new System.Drawing.Point(544, 50);
 			this.ProgressBar.Name = "ProgressBar";
 			this.ProgressBar.Size = new System.Drawing.Size(424, 10);
 			this.ProgressBar.TabIndex = 11;
@@ -153,18 +154,29 @@ namespace FileOp
 			// ProgressValue
 			// 
 			this.ProgressValue.AutoSize = true;
-			this.ProgressValue.Location = new System.Drawing.Point(1086, 48);
+			this.ProgressValue.Location = new System.Drawing.Point(992, 48);
 			this.ProgressValue.Name = "ProgressValue";
 			this.ProgressValue.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
 			this.ProgressValue.Size = new System.Drawing.Size(23, 12);
 			this.ProgressValue.TabIndex = 12;
 			this.ProgressValue.Text = "30%";
 			// 
+			// btnSave
+			// 
+			this.btnSave.Location = new System.Drawing.Point(1107, 13);
+			this.btnSave.Name = "btnSave";
+			this.btnSave.Size = new System.Drawing.Size(75, 23);
+			this.btnSave.TabIndex = 13;
+			this.btnSave.Text = "SaveFile";
+			this.btnSave.UseVisualStyleBackColor = true;
+			this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1236, 708);
+			this.Controls.Add(this.btnSave);
 			this.Controls.Add(this.ProgressValue);
 			this.Controls.Add(this.ProgressBar);
 			this.Controls.Add(this.label3);
@@ -198,8 +210,9 @@ namespace FileOp
 		private System.Windows.Forms.Button btnOpenFile;
 		private System.Windows.Forms.Label FileName;
 		private System.Windows.Forms.Label label3;
-		private System.Windows.Forms.ProgressBar ProgressBar;
-		private System.Windows.Forms.Label ProgressValue;
+		public System.Windows.Forms.ProgressBar ProgressBar;
+		public System.Windows.Forms.Label ProgressValue;
+		private System.Windows.Forms.Button btnSave;
 	}
 }
 

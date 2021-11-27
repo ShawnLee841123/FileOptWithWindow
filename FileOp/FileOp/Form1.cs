@@ -41,15 +41,32 @@ namespace FileOp
 
 		private void BtnTakePlaceAll_Click(object sender, EventArgs e)
 		{
+			FileSystem.Ins().SwitchCatchContent();
 			FileSystem.Ins().SetOperatedKeyWords(this.FindKeyBox.Text);
-			int nBlockCount = 7;
-			int nSize = FileSystem.Ins().AverageStringInThread(nBlockCount);
-			FileSystem.Ins().ConstructOpContentString(nSize, nBlockCount);
+			int nBlockCount = 12;
+			//int nSize = FileSystem.Ins().AverageStringInThread(nBlockCount);
+			//Dictionary<int, string> tempContent = new Dictionary<int, string>();
+			//FileSystem.Ins().ConstructOpContentString(nSize, nBlockCount, ref tempContent);
+			WorkPool.Ins().CreateThreads(nBlockCount);
+			WorkPool.Ins().InitialWorkProcess();
+			WorkPool.Ins().StartWork();
 		}
 
 		private void btnTakePlace_Click(object sender, EventArgs e)
 		{
+			#region test code
+			ThreadPool.Ins().CreateThreads(12);
+			ThreadPool.Ins().StartWork();
+			#endregion
+		}
 
+		private void btnSave_Click(object sender, EventArgs e)
+		{
+			FileSystem.Ins().SwitchCatchContent();
+			string strFileName = FileSystem.Ins().m_strFileName;
+			string[] arrFileName = strFileName.Split(new char[] { '.' });
+			string outName = arrFileName[0] + "(1)." + arrFileName[arrFileName.Length - 1];
+			FileWriter.Ins().WriteFile(outName, FileSystem.Ins().m_strFileContent);
 		}
 	}
 }

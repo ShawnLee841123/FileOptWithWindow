@@ -45,11 +45,15 @@ public class ThreadBase
 		}
 
 		m_th.Join();
+		m_th = null;
+		ThreadPool.Ins().JobsDone();
 	}
 
 	virtual protected bool TickProcess()
 	{
-		return true;
+		string strOut = string.Format("Thread[{0}]: Working.", nIndex);
+		System.Console.WriteLine(strOut);
+		return false;
 	}
 
 	public bool CheckStringValid(string strValue)

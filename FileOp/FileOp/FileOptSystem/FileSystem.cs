@@ -8,16 +8,25 @@ using System.Drawing;
 public class FileSystem : Singleton<FileSystem>
 {
 	#region Variable
+	protected object lockObject;
+	#region
+
+	#endregion
 
 	#region Base File Info
 	public string m_strFileName { get; protected set; }				//	file name
-	public string m_strFileContent { get; protected set; }			//	file content
+	public string m_strFileContent { get; protected set; }          //	file content
+	public string m_strTempContent { get; protected set; }
 	public int m_nContentStringSize { get; protected set; }			//	base file size
 	public int m_uFileLines { get; protected set; }					//	base file lines count number
 	public List<string> m_listFileLines { get; protected set; }     //	base file lines content
+
+	public string OutFileName { get; protected set; }
 	#endregion
 
 	#region File Op
+	public int BlockCount { get; protected set; }
+	public int CurFinished { get; protected set; }
 	public string m_strKeyWords { get; protected set; }
 	public string m_strReplaceWords { get; protected set; }
 	public Dictionary<int, string> m_dicThreadContent { get; protected set; }
@@ -28,6 +37,7 @@ public class FileSystem : Singleton<FileSystem>
 	#region Function
 	public FileSystem()
 	{
+		lockObject = new object();
 		ResetFile();
 	}
 
@@ -44,7 +54,8 @@ public class FileSystem : Singleton<FileSystem>
 		if (null == m_dicThreadContent)
 			m_dicThreadContent = new Dictionary<int, string>();
 
-		
+		BlockCount = 0;
+		CurFinished = 0;
 	}
 
 	public void SetFileName(string strFileName)
@@ -74,6 +85,18 @@ public class FileSystem : Singleton<FileSystem>
 	}
 
 	#region File Content Op
+	public bool SwitchCatchContent()
+	{
+		if (!CheckStringValid(m_strTempContent))
+		{
+			return false;
+		}
+
+		m_strFileContent = m_strTempContent;
+		m_strTempContent = "";
+		return true;
+	}
+
 	public void SetOperatedKeyWords(string strKey)
 	{
 		m_strKeyWords = strKey;
@@ -83,7 +106,19 @@ public class FileSystem : Singleton<FileSystem>
 	{
 		m_strReplaceWords = strKey;
 	}
-	public bool PreFileOp()
+
+	public bool SetJobsDoneContent(string strContent)
+	{
+		if (!CheckStringValid(strContent))
+		{
+			return false;
+		}
+
+		m_strTempContent = strContent;
+		return true;
+	}
+
+	public bool PreFileOp(int threadCount)
 	{
 		if (!CheckStringValid(m_strKeyWords))
 			return true;
@@ -97,6 +132,11 @@ public class FileSystem : Singleton<FileSystem>
 		{
 			return true;
 		}
+
+		int nSize = FileSystem.Ins().AverageStringInThread(threadCount);
+		Dictionary<int, string> FullTextContent = new Dictionary<int, string>();
+		ConstructOpContentString(nSize, threadCount, ref FullTextContent);
+		m_dicThreadContent = FullTextContent;
 
 		return true;
 	}
@@ -116,8 +156,9 @@ public class FileSystem : Singleton<FileSystem>
 
 		return nSize;
 	}
-	public bool ConstructOpContentString(int nSize, int nBlockCount)
+	public bool ConstructOpContentString(int nSize, int nBlockCount, ref Dictionary<int, string> dicContet)
 	{
+		dicContet.Clear();
 		for (int i = 0; i < nBlockCount; i++)
 		{
 			string strTemp = "";
@@ -129,22 +170,22 @@ public class FileSystem : Singleton<FileSystem>
 			{
 				strTemp = m_strFileContent.Substring(i * nSize);
 			}
-			
-			m_dicThreadContent.Add(i, strTemp);
+
+			dicContet.Add(i, strTemp);
 		}
 
 		int nKeyWordsLen = m_strKeyWords.Length;
 		//	string end contained part of key word
 		for(int i = 0; i < nBlockCount; i++)
 		{
-			string strContent = m_dicThreadContent[i];
+			string strContent = dicContet[i];
 			string strBegin = strContent.Substring(0, nKeyWordsLen);
 			int nEndPos = -1;
 			if (CheckStringBeginHaveKeyWords(strBegin, ref nEndPos))
 			{
 				if (i > 0)
 				{
-					string strLastContent = m_dicThreadContent[i - 1];
+					string strLastContent = dicContet[i - 1];
 					int nContentLen = strLastContent.Length;
 					string strEnd = strLastContent.Substring(nContentLen - nKeyWordsLen);
 					int nBeginPos = -1;
@@ -152,8 +193,8 @@ public class FileSystem : Singleton<FileSystem>
 					{
 						string strKeyContent = strContent.Substring(0, nEndPos);
 						string strTempContent = strContent.Substring(nEndPos);
-						m_dicThreadContent[i] = strTempContent;
-						m_dicThreadContent[i - 1] += strKeyContent;
+						dicContet[i] = strTempContent;
+						dicContet[i - 1] += strKeyContent;
 					}	
 				}
 			}
@@ -199,6 +240,30 @@ public class FileSystem : Singleton<FileSystem>
 	}
 
 	#endregion
+
+	#region Display
+	public void SetContentBlockCount(int nBlockCount)
+	{
+		BlockCount = nBlockCount;
+	}
+
+	public void AddCurrentFinishedBlock()
+	{
+		lock (lockObject)
+		{
+			CurFinished++;
+			UpdateProcess();
+		}
+	}
+
+	public void UpdateProcess()
+	{
+		float percent = ((float)(CurFinished)) / ((float)(BlockCount)) * 100.0f;
+		FileOp.Program.MyWindow.ProgressBar.Value = (int)percent;
+		FileOp.Program.MyWindow.ProgressValue.Text = string.Format("{0}%", (int)percent);
+	}
+	#endregion
+
 	#endregion
 }
 

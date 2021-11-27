@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,8 +6,8 @@ using System.Text;
 
 public class Singleton<T> where T : new()
 {
-	private static T _instance;
-	private static object _lockObj = new object();
+	protected static T _instance;
+	protected static object _lockObj = new object();
 
 	public static T Ins()
 	{

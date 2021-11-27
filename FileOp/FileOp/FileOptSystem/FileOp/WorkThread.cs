@@ -14,6 +14,8 @@ public class WorkThread: ThreadBase
 	public int CurIndex { get; protected set; }
 	public int ElementCount { get; protected set; }
 
+	public int BlockSize { get; protected set; }
+
 	protected object lockObj = new object();
 
 	public WorkThread()
@@ -38,6 +40,7 @@ public class WorkThread: ThreadBase
 			FindKey = "";
 			ReplaceWords = "";
 			CurIndex = 0;
+			BlockSize = 1024;
 		}
 	}
 	override protected bool TickProcess()
@@ -65,6 +68,8 @@ public class WorkThread: ThreadBase
 		
 		return true;
 	}
+
+	
 
 	public bool SetFindKeyWords(string Words)
 	{
@@ -107,6 +112,44 @@ public class WorkThread: ThreadBase
 			CurIndex = 0;
 			ElementCount = ElementList.Count;
 		}
+		return true;
+	}
+
+	public bool SetWorkingContent(string strContent)
+	{
+		if (!CheckStringValid(strContent))
+		{
+			return false;
+		}
+
+		string tempString = strContent;
+		int ContentSize = strContent.Length;
+		int blockCount = (ContentSize / BlockSize) + 1;
+
+		for (int i = 0; i < blockCount; i++)
+		{
+			string strTempString = tempString.Substring(i * BlockSize, BlockSize);
+			ElementList.Add(strTempString);
+		}
+
+		CurIndex = 0;
+		ElementCount = ElementList.Count;
+
+		return true;
+	}
+
+	public bool GetJobsDone(ref string strContent)
+	{
+		if (ElementCount <= 0)
+		{
+			return false;
+		}
+
+		for(int i = 0; i < ElementCount; i++)
+		{
+			strContent += ElementList[i];
+		}
+
 		return true;
 	}
 }
