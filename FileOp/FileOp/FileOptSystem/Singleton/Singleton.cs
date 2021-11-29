@@ -16,7 +16,7 @@ public class Singleton<T> where T : new()
 			lock(_lockObj)
 			{
 				_instance = new T();
-			}		
+			}
 		}
 
 		return _instance;

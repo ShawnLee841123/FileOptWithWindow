@@ -50,9 +50,9 @@ public class WorkThread: ThreadBase
 			return false;
 		}
 
-		if (!CheckStringValid(ReplaceWords))
+		if (null == ReplaceWords)
 		{
-			return true;
+			return false;
 		}
 
 		if (CurIndex >= ElementCount)
@@ -64,6 +64,7 @@ public class WorkThread: ThreadBase
 		{
 			ElementList[CurIndex].Replace(FindKey, ReplaceWords);
 			CurIndex++;
+			FileSystem.Ins().AddCurrentFinishedBlock();
 		}
 		
 		return true;
@@ -87,7 +88,7 @@ public class WorkThread: ThreadBase
 
 	public bool SetReplaceWords(string Words)
 	{
-		if (!CheckStringValid(Words))
+		if (null == Words)
 		{
 			return false;
 		}
@@ -128,7 +129,21 @@ public class WorkThread: ThreadBase
 
 		for (int i = 0; i < blockCount; i++)
 		{
-			string strTempString = tempString.Substring(i * BlockSize, BlockSize);
+			int startPos = i * BlockSize;
+			string strTempString = "";
+			if (startPos > ContentSize)
+			{
+				break;
+			}
+			else if (startPos + BlockSize >= ContentSize)
+			{
+				strTempString = tempString.Substring(startPos);
+			}
+			else
+			{
+				strTempString = tempString.Substring(startPos, BlockSize);
+			}
+			
 			ElementList.Add(strTempString);
 		}
 

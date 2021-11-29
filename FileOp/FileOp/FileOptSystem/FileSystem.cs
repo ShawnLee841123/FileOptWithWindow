@@ -121,17 +121,17 @@ public class FileSystem : Singleton<FileSystem>
 	public bool PreFileOp(int threadCount)
 	{
 		if (!CheckStringValid(m_strKeyWords))
-			return true;
+			return false;
 
-		if (m_uFileLines > 1)
-		{
-			return true;
-		}
+		//if (m_uFileLines > 1)
+		//{
+		//	return true;
+		//}
 
-		if (m_nContentStringSize > 1)
-		{
-			return true;
-		}
+		//if (m_nContentStringSize > 1)
+		//{
+		//	return true;
+		//}
 
 		int nSize = FileSystem.Ins().AverageStringInThread(threadCount);
 		Dictionary<int, string> FullTextContent = new Dictionary<int, string>();
@@ -258,11 +258,27 @@ public class FileSystem : Singleton<FileSystem>
 
 	public void UpdateProcess()
 	{
-		float percent = ((float)(CurFinished)) / ((float)(BlockCount)) * 100.0f;
-		FileOp.Program.MyWindow.ProgressBar.Value = (int)percent;
-		FileOp.Program.MyWindow.ProgressValue.Text = string.Format("{0}%", (int)percent);
+		lock (lockObject)
+		{
+			float percent = ((float)(CurFinished)) / ((float)(BlockCount)) * 100.0f;
+			Program.MyWindow.Invoke(Program.MyWindow.UpdateValue, (int)percent);
+			//FileOp.Program.MyWindow.ProgressBar.Value = (int)percent;
+			//FileOp.Program.MyWindow.ProgressValue.Text = string.Format("{0}%", (int)percent);
+		}
 	}
 	#endregion
+
+	#region Thread Op
+	public void CreateProcessWorker(int nCount)
+	{ }
+
+	public void InitialProcessWork()
+	{ }
+
+	public void JobsDone()
+	{ }
+	#endregion
+
 
 	#endregion
 }
