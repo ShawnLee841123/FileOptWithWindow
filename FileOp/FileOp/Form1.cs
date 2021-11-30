@@ -8,8 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public delegate void UpdateProgressValue(int nValue);
 
+public delegate void UpdateProgressValue(int nValue);
+public delegate void ResetDisplayText(string strText);
 	
 public partial class Form1 : Form
 {
@@ -19,6 +20,7 @@ public partial class Form1 : Form
 	}
 
 	public UpdateProgressValue UpdateValue;
+	public ResetDisplayText UpdateText;
 
 	private void btnFind_Click(object sender, EventArgs e)
 	{
@@ -46,7 +48,7 @@ public partial class Form1 : Form
 		FileSystem.Ins().SwitchCatchContent();
 		FileSystem.Ins().SetOperatedKeyWords(this.FindKeyBox.Text);
 		FileSystem.Ins().SetOperatedReplaceWords(this.ReplaceBox.Text);
-		int nBlockCount = 12;
+		int nBlockCount = 1;
 		//int nSize = FileSystem.Ins().AverageStringInThread(nBlockCount);
 		//Dictionary<int, string> tempContent = new Dictionary<int, string>();
 		//FileSystem.Ins().ConstructOpContentString(nSize, nBlockCount, ref tempContent);
@@ -58,8 +60,15 @@ public partial class Form1 : Form
 	private void btnTakePlace_Click(object sender, EventArgs e)
 	{
 		#region test code
-		ThreadPool.Ins().CreateThreads(12);
-		ThreadPool.Ins().StartWork();
+		UniversalDetector Det = new UniversalDetector(null);
+		Det.HandleData(bytes, 0, bytes.Length);
+		Det.DataEnd();
+
+		//ThreadPool.Ins().CreateThreads(12);
+		//ThreadPool.Ins().StartWork();
+		System.Text.Encoding codingType = System.Text.Encoding.GetEncoding(this.FindKeyBox.Text);
+		System.Text.Encoding FileType = System.Text.Encoding.GetEncoding(FileSystem.Ins().m_strFileContent);
+		this.FileContentBox.Text = string.Format("Editbox coding Page[{0}], File content coding page[{1}]", codingType.CodePage, FileType.CodePage);
 		#endregion
 	}
 

@@ -21,6 +21,8 @@ public class FileSystem : Singleton<FileSystem>
 	public int m_uFileLines { get; protected set; }					//	base file lines count number
 	public List<string> m_listFileLines { get; protected set; }     //	base file lines content
 
+	//public List<char> m_CharContent { get; protected set; }
+	//public List<char> m_tempCharContent { get; protected set; }
 	public string OutFileName { get; protected set; }
 	#endregion
 
@@ -30,6 +32,8 @@ public class FileSystem : Singleton<FileSystem>
 	public string m_strKeyWords { get; protected set; }
 	public string m_strReplaceWords { get; protected set; }
 	public Dictionary<int, string> m_dicThreadContent { get; protected set; }
+
+	//public Dictionary<int, List<char>> m_dicCharThreadContent { get; protected set; }
 	#endregion
 
 	#endregion
@@ -92,8 +96,16 @@ public class FileSystem : Singleton<FileSystem>
 			return false;
 		}
 
-		m_strFileContent = m_strTempContent;
-		m_strTempContent = "";
+		lock (lockObject)
+		{
+			m_strFileContent = m_strTempContent;
+			m_nContentStringSize = m_strFileContent.Length;
+			m_strTempContent = "";
+			BlockCount = 0;
+			CurFinished = 0;
+			m_dicThreadContent.Clear();
+		}
+
 		return true;
 	}
 
@@ -115,6 +127,7 @@ public class FileSystem : Singleton<FileSystem>
 		}
 
 		m_strTempContent = strContent;
+		Program.MyWindow.Invoke(Program.MyWindow.UpdateText, m_strTempContent);
 		return true;
 	}
 
@@ -132,6 +145,9 @@ public class FileSystem : Singleton<FileSystem>
 		//{
 		//	return true;
 		//}
+		BlockCount = 0;
+		CurFinished = 0;
+		m_dicThreadContent.Clear();
 
 		int nSize = FileSystem.Ins().AverageStringInThread(threadCount);
 		Dictionary<int, string> FullTextContent = new Dictionary<int, string>();
@@ -262,23 +278,9 @@ public class FileSystem : Singleton<FileSystem>
 		{
 			float percent = ((float)(CurFinished)) / ((float)(BlockCount)) * 100.0f;
 			Program.MyWindow.Invoke(Program.MyWindow.UpdateValue, (int)percent);
-			//FileOp.Program.MyWindow.ProgressBar.Value = (int)percent;
-			//FileOp.Program.MyWindow.ProgressValue.Text = string.Format("{0}%", (int)percent);
 		}
 	}
 	#endregion
-
-	#region Thread Op
-	public void CreateProcessWorker(int nCount)
-	{ }
-
-	public void InitialProcessWork()
-	{ }
-
-	public void JobsDone()
-	{ }
-	#endregion
-
 
 	#endregion
 }

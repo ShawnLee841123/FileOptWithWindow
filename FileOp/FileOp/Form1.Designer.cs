@@ -198,12 +198,18 @@ public partial class Form1
 		this.PerformLayout();
 
 		this.UpdateValue = UpdateShowValue;
+		this.UpdateText = UpdateShowText;
 	}
 
 	public void UpdateShowValue(int nValue)
 	{
 		ProgressBar.Value = nValue;
 		ProgressValue.Text = string.Format("{0}%", nValue);
+	}
+
+	public void UpdateShowText(string strValue)
+	{
+		FileContentBox.Text = strValue;
 	}
 	#endregion
 

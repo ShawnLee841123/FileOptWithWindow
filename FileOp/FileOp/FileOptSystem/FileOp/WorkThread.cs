@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 public class WorkThread: ThreadBase
 {
 	public List<string> ElementList = new List<string>();
-
+	public List<string> FinishList = new List<string>();
 	public string FindKey { get; protected set; }
 	public string ReplaceWords { get; protected set; }
+
+	public List<char> m_CharFindKey { get; protected set; }
+	public List<char> m_CharReplaceWords { get; protected set; }
 	public int CurIndex { get; protected set; }
 	public int ElementCount { get; protected set; }
 
@@ -37,6 +40,35 @@ public class WorkThread: ThreadBase
 				ElementList = new List<string>();
 			}
 
+			if (null != FinishList)
+			{
+				FinishList.Clear();
+			}
+			else
+			{
+				FinishList = new List<string>();
+			}
+
+			if (null != m_CharFindKey)
+			{
+				m_CharFindKey.Clear();
+				
+			}
+			else
+			{
+				m_CharFindKey = new List<char>();
+			}
+
+			if (null != m_CharReplaceWords)
+			{
+				m_CharReplaceWords.Clear();
+			}
+			else
+			{
+				m_CharReplaceWords = new List<char>();
+			}
+
+
 			FindKey = "";
 			ReplaceWords = "";
 			CurIndex = 0;
@@ -62,7 +94,10 @@ public class WorkThread: ThreadBase
 
 		lock (lockObj)
 		{
-			ElementList[CurIndex].Replace(FindKey, ReplaceWords);
+			//string strOut = "";
+			//ReplaceCharContent(ElementList[CurIndex], ref strOut);
+			//FinishList.Add(strOut);
+			FinishList.Add(ElementList[CurIndex].Replace(FindKey, ReplaceWords));
 			CurIndex++;
 			FileSystem.Ins().AddCurrentFinishedBlock();
 		}
@@ -70,7 +105,59 @@ public class WorkThread: ThreadBase
 		return true;
 	}
 
-	
+	public bool ReplaceCharContent(string strContent, ref string strOut)
+	{
+		byte[] arrContent = System.Text.Encoding.Default.GetBytes(strContent);
+		List<char> tempRet = new List<char>();
+		bool bStart = false;
+		int nStartPos = 0;
+		
+		for (int i = 0; i < arrContent.Length; i++)
+		{
+			while(bStart)
+			{
+				int nEndPos = 0;
+				for (int j = 1; j < m_CharFindKey.Count; j++)
+				{
+					if (arrContent[nStartPos + j] != m_CharFindKey[j])
+					{
+						nEndPos = j;
+						break;
+					}
+				}
+
+				if (nEndPos < m_CharFindKey.Count - 1)
+				{
+					bStart = false;
+					tempRet.Add((char)arrContent[nStartPos]);
+				}
+				else
+				{
+					for(int k = 0; k < m_CharReplaceWords.Count; k++)
+					{
+						tempRet.Add(m_CharReplaceWords[k]);
+					}
+
+					bStart = false;
+					i = nStartPos + m_CharFindKey.Count;
+				}
+			}
+
+			if ((char)arrContent[i] == m_CharFindKey[0])
+			{
+				if (i + m_CharFindKey.Count < arrContent.Length)
+				{
+					bStart = true;
+					nStartPos = i;
+				}
+			}
+
+			tempRet.Add((char)arrContent[i]);
+		}
+
+		strOut = System.Text.Encoding.Default.GetString(arrContent);
+		return true;
+	}
 
 	public bool SetFindKeyWords(string Words)
 	{
@@ -81,6 +168,11 @@ public class WorkThread: ThreadBase
 		lock(lockObj)
 		{
 			FindKey = Words;
+			byte[] arrContent = System.Text.Encoding.Default.GetBytes(FindKey);
+			for (int i = 0; i < arrContent.Length; i++)
+			{
+				m_CharFindKey.Add((char)arrContent[i]);
+			}
 		}
 
 		return true;
@@ -95,7 +187,16 @@ public class WorkThread: ThreadBase
 
 		lock(lockObj)
 		{
+			//if (Words.Contains("\\"))
+			//{
+			//	ReplaceWords = Words.Replace("\")
+			//}
 			ReplaceWords = Words;
+			byte[] arrContent = System.Text.Encoding.Default.GetBytes(ReplaceWords);
+			for (int i = 0; i < arrContent.Length; i++)
+			{
+				m_CharFindKey.Add((char)arrContent[i]);
+			}
 		}
 		return true;
 	}
@@ -162,7 +263,7 @@ public class WorkThread: ThreadBase
 
 		for(int i = 0; i < ElementCount; i++)
 		{
-			strContent += ElementList[i];
+			strContent += FinishList[i];
 		}
 
 		return true;

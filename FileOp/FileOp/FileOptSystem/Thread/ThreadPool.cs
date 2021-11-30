@@ -19,15 +19,18 @@ public class ThreadPool: Singleton<ThreadPool>
 	public OnJobsDoneEvent pJobsDone;
 	public OnCreateThread pCreateEvent;
 	public OnInitialProcessEvent pInitialEvent;
+	protected int isDone;
 
 	public ThreadPool()
 	{
 		threadCount = 0;
+		lockObject = new object();
 		m_Pool = new List<ThreadBase>();
 		m_Pool.Clear();
 		pCreateEvent = CreateWorkThreads;
 		pInitialEvent = InitialReplaceProcess;
 		pJobsDone = null;
+		isDone = 0;
 	}
 
 	virtual public bool CreateThreads(int nThreadCount)
@@ -52,7 +55,8 @@ public class ThreadPool: Singleton<ThreadPool>
 		{
 			pInitialEvent();
 		}
-		
+
+		isDone = 0;
 		return true;
 	}
 
@@ -145,6 +149,7 @@ public class ThreadPool: Singleton<ThreadPool>
 		int BlockCount = 0;
 		for (int i = 0; i < threadCount; i++)
 		{
+			((WorkThread)m_Pool[i]).Reset();
 			((WorkThread)m_Pool[i]).SetFindKeyWords(FileSystem.Ins().m_strKeyWords);
 			((WorkThread)m_Pool[i]).SetReplaceWords(FileSystem.Ins().m_strReplaceWords);
 			((WorkThread)m_Pool[i]).SetWorkingContent(FullTextContent[i]);
@@ -160,14 +165,28 @@ public class ThreadPool: Singleton<ThreadPool>
 
 	public void OnAllThreadJobsDone()
 	{
-		string strContent = "";
-		for (int i = 0; i < threadCount; i++)
+		if (isDone > 0)
 		{
-			((WorkThread)m_Pool[i]).GetJobsDone(ref strContent);
+			return;
 		}
 
-		FileSystem.Ins().SetJobsDoneContent(strContent);
-		FileSystem.Ins().SwitchCatchContent();
+		lock(lockObject)
+		{
+			if (isDone > 0)
+			{
+				return;
+			}
+
+			string strContent = "";
+			for (int i = 0; i < threadCount; i++)
+			{
+				((WorkThread)m_Pool[i]).GetJobsDone(ref strContent);
+			}
+
+			FileSystem.Ins().SetJobsDoneContent(strContent);
+			FileSystem.Ins().SwitchCatchContent();
+			isDone++;
+		}
 	}
 	#endregion
 }

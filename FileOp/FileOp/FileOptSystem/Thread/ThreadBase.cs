@@ -44,9 +44,9 @@ public class ThreadBase
 			Thread.Sleep(SleepTime);
 		}
 
+		ThreadPool.Ins().JobsDone();
 		m_th.Join();
 		m_th = null;
-		ThreadPool.Ins().JobsDone();
 	}
 
 	virtual protected bool TickProcess()
