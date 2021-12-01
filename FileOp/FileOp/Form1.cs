@@ -60,15 +60,13 @@ public partial class Form1 : Form
 	private void btnTakePlace_Click(object sender, EventArgs e)
 	{
 		#region test code
-		UniversalDetector Det = new UniversalDetector(null);
-		Det.HandleData(bytes, 0, bytes.Length);
-		Det.DataEnd();
+
 
 		//ThreadPool.Ins().CreateThreads(12);
 		//ThreadPool.Ins().StartWork();
-		System.Text.Encoding codingType = System.Text.Encoding.GetEncoding(this.FindKeyBox.Text);
-		System.Text.Encoding FileType = System.Text.Encoding.GetEncoding(FileSystem.Ins().m_strFileContent);
-		this.FileContentBox.Text = string.Format("Editbox coding Page[{0}], File content coding page[{1}]", codingType.CodePage, FileType.CodePage);
+		int codingType = FileSystem.Ins().GetStringCode(this.FindKeyBox.Text);
+		int nFileCodeType = FileSystem.Ins().GetStringCode(FileSystem.Ins().m_strFileContent);
+		this.FileContentBox.Text = string.Format("Editbox coding Page[{0}], File content coding page[{1}]", codingType, nFileCodeType);
 		#endregion
 	}
 

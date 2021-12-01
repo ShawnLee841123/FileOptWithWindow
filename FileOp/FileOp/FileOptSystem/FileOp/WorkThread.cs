@@ -167,7 +167,14 @@ public class WorkThread: ThreadBase
 		}
 		lock(lockObj)
 		{
-			FindKey = Words;
+			FileSystem.CodeType codeType = FileSystem.Ins().m_eFileCodeType;
+			string strTemp = "";
+			if (!FileSystem.Ins().GetDestString(Words, (int)codeType, ref strTemp))
+			{
+				return false;
+			}
+
+			FindKey = strTemp;
 			byte[] arrContent = System.Text.Encoding.Default.GetBytes(FindKey);
 			for (int i = 0; i < arrContent.Length; i++)
 			{
@@ -191,11 +198,21 @@ public class WorkThread: ThreadBase
 			//{
 			//	ReplaceWords = Words.Replace("\")
 			//}
-			ReplaceWords = Words;
-			byte[] arrContent = System.Text.Encoding.Default.GetBytes(ReplaceWords);
-			for (int i = 0; i < arrContent.Length; i++)
+			if (Words.Length > 0)
 			{
-				m_CharFindKey.Add((char)arrContent[i]);
+				FileSystem.CodeType codeType = FileSystem.Ins().m_eFileCodeType;
+				string strTemp = "";
+				if (!FileSystem.Ins().GetDestString(Words, (int)codeType, ref strTemp))
+				{
+					return false;
+				}
+
+				ReplaceWords = strTemp;
+				byte[] arrContent = System.Text.Encoding.Default.GetBytes(ReplaceWords);
+				for (int i = 0; i < arrContent.Length; i++)
+				{
+					m_CharFindKey.Add((char)arrContent[i]);
+				}
 			}
 		}
 		return true;

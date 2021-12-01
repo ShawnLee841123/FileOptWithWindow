@@ -7,6 +7,16 @@ using System.Drawing;
 
 public class FileSystem : Singleton<FileSystem>
 {
+	public enum CodeType
+	{
+		CT_ASCII = 0,
+		CT_UTF8,
+		CT_GB,
+		CT_GBK,
+		CT_BIG5,
+
+		CT_MAX
+	}
 	#region Variable
 	protected object lockObject;
 	#region
@@ -33,6 +43,7 @@ public class FileSystem : Singleton<FileSystem>
 	public string m_strReplaceWords { get; protected set; }
 	public Dictionary<int, string> m_dicThreadContent { get; protected set; }
 
+	public CodeType m_eFileCodeType { get; protected set; }
 	//public Dictionary<int, List<char>> m_dicCharThreadContent { get; protected set; }
 	#endregion
 
@@ -60,6 +71,7 @@ public class FileSystem : Singleton<FileSystem>
 
 		BlockCount = 0;
 		CurFinished = 0;
+		m_eFileCodeType = CodeType.CT_ASCII;
 	}
 
 	public void SetFileName(string strFileName)
@@ -78,6 +90,7 @@ public class FileSystem : Singleton<FileSystem>
 			return false;
 
 		m_strFileContent = strContent;
+		m_eFileCodeType = (CodeType)GetStringCode(m_strFileContent);
 		return true;
 	}
 
@@ -279,6 +292,233 @@ public class FileSystem : Singleton<FileSystem>
 			float percent = ((float)(CurFinished)) / ((float)(BlockCount)) * 100.0f;
 			Program.MyWindow.Invoke(Program.MyWindow.UpdateValue, (int)percent);
 		}
+	}
+	#endregion
+
+	#region string code
+	public int GetStringCode(string strValue)
+	{
+		if (CheckStringIsUTF8Code(strValue))
+		{
+			return (int)CodeType.CT_UTF8;
+		}
+		
+		if(CheckStringIsGBCode(strValue))
+		{
+			return (int)CodeType.CT_GB;
+		}
+
+		if (CheckStringIsGBKCode(strValue))
+		{
+			return (int)CodeType.CT_GBK;
+		}
+
+		if (CheckStringIsBig5Code(strValue))
+		{
+			return (int)CodeType.CT_BIG5;
+		}
+
+		return (int)CodeType.CT_ASCII;
+	}
+
+	public bool GetDestString(string strIn, int nCodeType, ref string strOut)
+	{
+		if (!CheckStringValid(strIn))
+		{
+			return false;
+		}
+
+		int nInType = GetStringCode(strIn);
+		CodeType eType = (CodeType)nInType;
+		CodeType eOutType = (CodeType)nCodeType;
+		Encoding codingIn;
+		Encoding codingOut;
+		byte[] arrIn;
+		switch(eType)
+		{
+			case CodeType.CT_UTF8:
+				{
+					codingIn = Encoding.UTF8;
+					arrIn = Encoding.UTF8.GetBytes(strIn);
+				}
+				break;
+			case CodeType.CT_GB:
+				{
+					codingIn = Encoding.GetEncoding("GB2312");
+					arrIn = Encoding.GetEncoding("GB2312").GetBytes(strIn);
+				}
+				break;
+			case CodeType.CT_GBK:
+				{
+					codingIn = Encoding.GetEncoding("GBK");
+					arrIn = Encoding.GetEncoding("GBK").GetBytes(strIn);
+				}
+				break;
+			case CodeType.CT_BIG5:
+				{
+					codingIn = Encoding.GetEncoding("Big5");
+					arrIn = Encoding.GetEncoding("Big5").GetBytes(strIn);
+				}
+				break;
+			default:
+				return false;
+		}
+
+		switch (eOutType)
+		{
+			case CodeType.CT_UTF8:
+				{
+					strOut = Encoding.UTF8.GetString(arrIn);
+				}
+				break;
+			case CodeType.CT_GB:
+				{
+					strOut = Encoding.GetEncoding("GB2312").GetString(arrIn);
+				}
+				break;
+			case CodeType.CT_GBK:
+				{
+					strOut = Encoding.GetEncoding("GBK").GetString(arrIn);
+				}
+				break;
+			case CodeType.CT_BIG5:
+				{
+					strOut = Encoding.GetEncoding("Big5").GetString(arrIn);
+				}
+				break;
+			default:
+				return false;
+		}
+
+		return true;
+
+		byte[] arrOut;// = Encoding.Convert(eType, eOutType, arrIn);
+		switch (eOutType)
+		{
+			case CodeType.CT_UTF8:
+				{
+					codingOut = Encoding.UTF8;
+					arrOut = Encoding.Convert(codingIn, Encoding.UTF8, arrIn);
+				}
+				break;
+			case CodeType.CT_GB:
+				{
+					codingOut = Encoding.GetEncoding("GB2312");
+					arrOut = Encoding.Convert(codingIn, Encoding.GetEncoding("GB2312"), arrIn);
+					//arrOut = Encoding.GetEncoding("GB2312").GetString(arrIn);
+				}
+				break;
+			case CodeType.CT_GBK:
+				{
+					codingOut = Encoding.GetEncoding("GBK");
+					arrOut = Encoding.Convert(codingIn, Encoding.GetEncoding("GBK"), arrIn);
+					//arrOut = Encoding.GetEncoding("GBK").GetString(arrIn);
+				}
+				break;
+			case CodeType.CT_BIG5:
+				{
+					codingOut = Encoding.GetEncoding("Big5");
+					arrOut = Encoding.Convert(codingIn, Encoding.GetEncoding("Big5"), arrIn);
+					//arrOut = Encoding.GetEncoding("Big5").GetString(arrIn);
+				}
+				break;
+			default:
+				return false;
+		}
+
+		strOut = codingOut.GetString(arrOut);
+		return true;
+	}
+	
+	public bool CheckStringIsGBCode(string strValue)
+	{
+		byte[] bytes = Encoding.GetEncoding("GB2312").GetBytes(strValue);
+		if (bytes.Length <= 1) // if there is only one byte, it is ASCII code or other code
+		{
+			return false;
+		}
+		else
+		{
+			byte byte1 = bytes[0];
+			byte byte2 = bytes[1];
+			if (byte1 >= 176 && byte1 <= 247 && byte2 >= 160 && byte2 <= 254)    //判断是否是GB2312
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public bool CheckStringIsGBKCode(string strValue)
+	{
+		byte[] bytes = Encoding.GetEncoding("GBK").GetBytes(strValue.ToString());
+		if (bytes.Length <= 1) // if there is only one byte, it is ASCII code
+		{
+			return false;
+		}
+		else
+		{
+			byte byte1 = bytes[0];
+			byte byte2 = bytes[1];
+			if (byte1 >= 129 && byte1 <= 254 && byte2 >= 64 && byte2 <= 254)     //判断是否是GBK编码
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public bool CheckStringIsBig5Code(string strValue)
+	{
+		byte[] bytes = Encoding.GetEncoding("Big5").GetBytes(strValue.ToString());
+		if (bytes.Length <= 1) // if there is only one byte, it is ASCII code
+		{
+			return false;
+		}
+		else
+		{
+			byte byte1 = bytes[0];
+			byte byte2 = bytes[1];
+			if ((byte1 >= 129 && byte1 <= 254) && ((byte2 >= 64 && byte2 <= 126) || (byte2 >= 161 && byte2 <= 254)))     //判断是否是Big5编码
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public bool CheckStringIsUTF8Code(string strValue)
+	{
+		byte[] bytes = Encoding.UTF8.GetBytes(strValue.ToString());
+		for (int i = 0; i < bytes.Length; i++)
+		{
+			if ((bytes[i] & 0xE0) == 0xC0) // 110x xxxx 10xx xxxx
+			{
+				if ((bytes[i + 1] & 0x80) != 0x80)
+				{
+					return false;
+				}
+			}
+			else if ((bytes[i] & 0xF0) == 0xE0) // 1110 xxxx 10xx xxxx 10xx xxxx
+			{
+				if ((bytes[i + 1] & 0x80) != 0x80 || (bytes[i + 2] & 0x80) != 0x80)
+				{
+					return false;
+				}
+			}
+			else if ((bytes[i] & 0xF8) == 0xF0) // 1111 0xxx 10xx xxxx 10xx xxxx 10xx xxxx
+			{
+				if ((bytes[i + 1] & 0x80) != 0x80 || (bytes[i + 2] & 0x80) != 0x80 || (bytes[i + 3] & 0x80) != 0x80)
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 	#endregion
 
