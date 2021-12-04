@@ -17,6 +17,8 @@ public partial class Form1 : Form
 	public Form1()
 	{
 		InitializeComponent();
+		UpdateValue = this.UpdateShowValue;
+		UpdateText = this.UpdateShowText;
 	}
 
 	public UpdateProgressValue UpdateValue;
@@ -48,7 +50,7 @@ public partial class Form1 : Form
 		FileSystem.Ins().SwitchCatchContent();
 		FileSystem.Ins().SetOperatedKeyWords(this.FindKeyBox.Text);
 		FileSystem.Ins().SetOperatedReplaceWords(this.ReplaceBox.Text);
-		int nBlockCount = 1;
+		int nBlockCount = 12;
 		//int nSize = FileSystem.Ins().AverageStringInThread(nBlockCount);
 		//Dictionary<int, string> tempContent = new Dictionary<int, string>();
 		//FileSystem.Ins().ConstructOpContentString(nSize, nBlockCount, ref tempContent);
@@ -76,7 +78,29 @@ public partial class Form1 : Form
 		string strFileName = FileSystem.Ins().m_strFileName;
 		string[] arrFileName = strFileName.Split(new char[] { '.' });
 		string outName = arrFileName[0] + "(1)." + arrFileName[arrFileName.Length - 1];
+
+		string strLineFlag = FileSystem.Ins().m_strLineFlag;
+		if (FileSystem.Ins().CheckStringValid(strLineFlag))
+		{
+			string[] arrFileLines = FileSystem.Ins().m_listFinishedLines.ToArray();
+			if (FileSystem.Ins().CheckArrayValid(arrFileLines))
+			{
+				FileWriter.Ins().WriteFileInLines(outName, arrFileLines);
+				return;
+			}
+		}
+
 		FileWriter.Ins().WriteFile(outName, FileSystem.Ins().m_strFileContent);
+	}
+
+	private void btnSaveLineFlag_Click(object sender, EventArgs e)
+	{
+		FileSystem.Ins().SwitchCatchContent();
+		FileSystem.Ins().SetLineFlag(this.LineFlagInput.Text);
+		int nBlockCount = 12;
+		ThreadPool.Ins().CreateThreads(nBlockCount);
+		ThreadPool.Ins().SplitLinerWorkProcess();
+		ThreadPool.Ins().StartWork();
 	}
 }
 

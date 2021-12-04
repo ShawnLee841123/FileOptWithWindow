@@ -31,6 +31,7 @@ public class FileSystem : Singleton<FileSystem>
 	public int m_uFileLines { get; protected set; }					//	base file lines count number
 	public List<string> m_listFileLines { get; protected set; }     //	base file lines content
 
+	public List<string> m_listFinishedLines;
 	//public List<char> m_CharContent { get; protected set; }
 	//public List<char> m_tempCharContent { get; protected set; }
 	public string OutFileName { get; protected set; }
@@ -41,6 +42,9 @@ public class FileSystem : Singleton<FileSystem>
 	public int CurFinished { get; protected set; }
 	public string m_strKeyWords { get; protected set; }
 	public string m_strReplaceWords { get; protected set; }
+
+	public string m_strLineFlag { get; protected set; }
+
 	public Dictionary<int, string> m_dicThreadContent { get; protected set; }
 
 	public CodeType m_eFileCodeType { get; protected set; }
@@ -65,9 +69,22 @@ public class FileSystem : Singleton<FileSystem>
 		m_strKeyWords = "";
 		if (null == m_listFileLines)
 			m_listFileLines = new List<string>();
+		else
+			m_listFileLines.Clear();
 
 		if (null == m_dicThreadContent)
 			m_dicThreadContent = new Dictionary<int, string>();
+		else
+			m_dicThreadContent.Clear();
+
+		if (null == m_listFinishedLines)
+		{
+			m_listFinishedLines = new List<string>();
+		}
+		else
+		{
+			m_listFinishedLines.Clear();
+		}
 
 		BlockCount = 0;
 		CurFinished = 0;
@@ -127,6 +144,15 @@ public class FileSystem : Singleton<FileSystem>
 		m_strKeyWords = strKey;
 	}
 
+	public void SetLineFlag(string strFlag)
+	{
+		if (!CheckStringValid(strFlag))
+		{
+			return;
+		}
+
+		m_strLineFlag = strFlag;
+	}
 	public void SetOperatedReplaceWords(string strKey)
 	{
 		m_strReplaceWords = strKey;
@@ -144,7 +170,7 @@ public class FileSystem : Singleton<FileSystem>
 		return true;
 	}
 
-	public bool PreFileOp(int threadCount)
+	public bool PreFileOp(int threadCount, string strKeyWords)
 	{
 		if (!CheckStringValid(m_strKeyWords))
 			return false;
@@ -162,9 +188,10 @@ public class FileSystem : Singleton<FileSystem>
 		CurFinished = 0;
 		m_dicThreadContent.Clear();
 
+		m_eFileCodeType = (CodeType)GetStringCode(m_strFileContent);
 		int nSize = FileSystem.Ins().AverageStringInThread(threadCount);
 		Dictionary<int, string> FullTextContent = new Dictionary<int, string>();
-		ConstructOpContentString(nSize, threadCount, ref FullTextContent);
+		ConstructOpContentString(nSize, threadCount, strKeyWords, m_strFileContent, ref FullTextContent);
 		m_dicThreadContent = FullTextContent;
 
 		return true;
@@ -185,7 +212,7 @@ public class FileSystem : Singleton<FileSystem>
 
 		return nSize;
 	}
-	public bool ConstructOpContentString(int nSize, int nBlockCount, ref Dictionary<int, string> dicContet)
+	public bool ConstructOpContentString(int nSize, int nBlockCount, string strKeyWords, string strContentIn, ref Dictionary<int, string> dicContet)
 	{
 		dicContet.Clear();
 		for (int i = 0; i < nBlockCount; i++)
@@ -193,24 +220,24 @@ public class FileSystem : Singleton<FileSystem>
 			string strTemp = "";
 			if (i < nBlockCount - 1)
 			{
-				strTemp = m_strFileContent.Substring((i * nSize), nSize);
+				strTemp = strContentIn.Substring((i * nSize), nSize);
 			}
 			else
 			{
-				strTemp = m_strFileContent.Substring(i * nSize);
+				strTemp = strContentIn.Substring(i * nSize);
 			}
 
 			dicContet.Add(i, strTemp);
 		}
 
-		int nKeyWordsLen = m_strKeyWords.Length;
+		int nKeyWordsLen = strKeyWords.Length;
 		//	string end contained part of key word
 		for(int i = 0; i < nBlockCount; i++)
 		{
 			string strContent = dicContet[i];
 			string strBegin = strContent.Substring(0, nKeyWordsLen);
 			int nEndPos = -1;
-			if (CheckStringBeginHaveKeyWords(strBegin, ref nEndPos))
+			if (CheckStringBeginHaveKeyWords(strBegin, strKeyWords, ref nEndPos))
 			{
 				if (i > 0)
 				{
@@ -218,7 +245,7 @@ public class FileSystem : Singleton<FileSystem>
 					int nContentLen = strLastContent.Length;
 					string strEnd = strLastContent.Substring(nContentLen - nKeyWordsLen);
 					int nBeginPos = -1;
-					if (CheckStringEndHaveKeyWords(strEnd, ref nBeginPos))
+					if (CheckStringEndHaveKeyWords(strEnd, strKeyWords, ref nBeginPos))
 					{
 						string strKeyContent = strContent.Substring(0, nEndPos);
 						string strTempContent = strContent.Substring(nEndPos);
@@ -232,13 +259,13 @@ public class FileSystem : Singleton<FileSystem>
 		return true;
 	}
 
-	public bool CheckStringBeginHaveKeyWords(string strBegin, ref int nEndPos)
+	public bool CheckStringBeginHaveKeyWords(string strBegin, string strKeyWords, ref int nEndPos)
 	{
-		int nKeyWordsLen = m_strKeyWords.Length;
+		int nKeyWordsLen = strKeyWords.Length;
 		for(int i = 1; i < nKeyWordsLen; i++)
 		{
 			//	Get keywords character from end point in keys
-			string subKey = m_strKeyWords.Substring(nKeyWordsLen - i);
+			string subKey = strKeyWords.Substring(nKeyWordsLen - i);
 			//	get keywords character from begin string
 			string subBeg = strBegin.Substring(0, i);
 			
@@ -251,12 +278,12 @@ public class FileSystem : Singleton<FileSystem>
 		return false;
 	}
 
-	public bool CheckStringEndHaveKeyWords(string strEnd, ref int nBeginPos)
+	public bool CheckStringEndHaveKeyWords(string strEnd, string strKeyWords, ref int nBeginPos)
 	{
-		int nKeyWordsLen = m_strKeyWords.Length;
+		int nKeyWordsLen = strKeyWords.Length;
 		for (int i = 1; i < nKeyWordsLen; i++)
 		{
-			string subKey = m_strKeyWords.Substring(0, i);
+			string subKey = strKeyWords.Substring(0, i);
 			string subEnd = strEnd.Substring(nKeyWordsLen - i);
 			if (subEnd == subKey)
 			{
@@ -364,33 +391,33 @@ public class FileSystem : Singleton<FileSystem>
 				return false;
 		}
 
-		switch (eOutType)
-		{
-			case CodeType.CT_UTF8:
-				{
-					strOut = Encoding.UTF8.GetString(arrIn);
-				}
-				break;
-			case CodeType.CT_GB:
-				{
-					strOut = Encoding.GetEncoding("GB2312").GetString(arrIn);
-				}
-				break;
-			case CodeType.CT_GBK:
-				{
-					strOut = Encoding.GetEncoding("GBK").GetString(arrIn);
-				}
-				break;
-			case CodeType.CT_BIG5:
-				{
-					strOut = Encoding.GetEncoding("Big5").GetString(arrIn);
-				}
-				break;
-			default:
-				return false;
-		}
+		//switch (eOutType)
+		//{
+		//	case CodeType.CT_UTF8:
+		//		{
+		//			strOut = Encoding.UTF8.GetString(arrIn);
+		//		}
+		//		break;
+		//	case CodeType.CT_GB:
+		//		{
+		//			strOut = Encoding.GetEncoding("GB2312").GetString(arrIn);
+		//		}
+		//		break;
+		//	case CodeType.CT_GBK:
+		//		{
+		//			strOut = Encoding.GetEncoding("GBK").GetString(arrIn);
+		//		}
+		//		break;
+		//	case CodeType.CT_BIG5:
+		//		{
+		//			strOut = Encoding.GetEncoding("Big5").GetString(arrIn);
+		//		}
+		//		break;
+		//	default:
+		//		return false;
+		//}
 
-		return true;
+		//return true;
 
 		byte[] arrOut;// = Encoding.Convert(eType, eOutType, arrIn);
 		switch (eOutType)

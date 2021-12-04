@@ -60,6 +60,8 @@ public class ThreadPool: Singleton<ThreadPool>
 		return true;
 	}
 
+	
+
 	virtual public bool StartWork()
 	{
 		if (m_Pool.Count <= 0)
@@ -143,7 +145,7 @@ public class ThreadPool: Singleton<ThreadPool>
 
 	public void InitialReplaceProcess()
 	{
-		FileSystem.Ins().PreFileOp(threadCount);
+		FileSystem.Ins().PreFileOp(threadCount, FileSystem.Ins().m_strKeyWords);
 		Dictionary<int, string> FullTextContent = FileSystem.Ins().m_dicThreadContent;
 
 		int BlockCount = 0;
@@ -163,6 +165,30 @@ public class ThreadPool: Singleton<ThreadPool>
 		FileSystem.Ins().UpdateProcess();
 	}
 
+	virtual public bool SplitLinerWorkProcess()
+	{
+		FileSystem.Ins().PreFileOp(threadCount, FileSystem.Ins().m_strLineFlag);
+		Dictionary<int, string> FullTextContent = FileSystem.Ins().m_dicThreadContent;
+
+		int BlockCount = 0;
+		for (int i = 0; i < threadCount; i++)
+		{
+			((WorkThread)m_Pool[i]).Reset();
+			((WorkThread)m_Pool[i]).SetSplitLineFlag(FileSystem.Ins().m_strLineFlag);
+			((WorkThread)m_Pool[i]).SetWorkingContent(FullTextContent[i]);
+			m_Pool[i].SleepTime = 100;
+
+			BlockCount += ((WorkThread)m_Pool[i]).ElementCount;
+		}
+
+		pJobsDone = OnSplitJobsDone;
+		FileSystem.Ins().SetContentBlockCount(BlockCount);
+		FileSystem.Ins().UpdateProcess();
+
+		isDone = 0;
+		return true;
+	}
+
 	public void OnAllThreadJobsDone()
 	{
 		if (isDone > 0)
@@ -177,6 +203,7 @@ public class ThreadPool: Singleton<ThreadPool>
 				return;
 			}
 
+			isDone++;
 			string strContent = "";
 			for (int i = 0; i < threadCount; i++)
 			{
@@ -185,7 +212,29 @@ public class ThreadPool: Singleton<ThreadPool>
 
 			FileSystem.Ins().SetJobsDoneContent(strContent);
 			FileSystem.Ins().SwitchCatchContent();
+		}
+	}
+
+	public void OnSplitJobsDone()
+	{
+		if (isDone > 0)
+		{
+			return;
+		}
+
+		lock(lockObject)
+		{
+			if (isDone > 0)
+			{
+				return;
+			}
+
 			isDone++;
+			FileSystem.Ins().m_listFinishedLines.Clear();
+			for(int i = 0; i < threadCount; i++)
+			{
+				((WorkThread)m_Pool[i]).GetSplitDone(ref FileSystem.Ins().m_listFinishedLines);
+			}
 		}
 	}
 	#endregion

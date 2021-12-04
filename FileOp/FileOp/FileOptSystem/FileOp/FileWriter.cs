@@ -48,5 +48,29 @@ public class FileWriter: Singleton<FileWriter>
 		}
 		return WriteFileResultType.WFRT_SUCCESS;
 	}
+
+	public WriteFileResultType WriteFileInLines(string strFileName, string[] arrLines)
+	{
+		if (!CheckStringValid(strFileName))
+			return WriteFileResultType.WFRT_ERROR_FILE_NAME;
+
+		if (!CheckArrayValid(arrLines))
+			return WriteFileResultType.WFRT_ERROR_CONTENT;
+
+		using (FileStream pFileStream = new FileStream(strFileName, FileMode.OpenOrCreate))
+		{
+			StreamWriter pWriter = new StreamWriter(pFileStream);
+			for(int i = 0; i < arrLines.Length; i++)
+			{
+				pWriter.WriteLine(arrLines[i]);
+			}
+
+			pWriter.Flush();
+			pFileStream.Flush();
+			pWriter.Dispose();
+			pWriter.Close();
+		}
+		return WriteFileResultType.WFRT_SUCCESS;
+	}
 }
 

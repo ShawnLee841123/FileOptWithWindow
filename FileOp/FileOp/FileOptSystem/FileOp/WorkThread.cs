@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-
 
 public class WorkThread: ThreadBase
 {
@@ -12,6 +12,7 @@ public class WorkThread: ThreadBase
 	public string FindKey { get; protected set; }
 	public string ReplaceWords { get; protected set; }
 
+	public string SplitLineFlag { get; protected set; }
 	public List<char> m_CharFindKey { get; protected set; }
 	public List<char> m_CharReplaceWords { get; protected set; }
 	public int CurIndex { get; protected set; }
@@ -71,11 +72,43 @@ public class WorkThread: ThreadBase
 
 			FindKey = "";
 			ReplaceWords = "";
+			SplitLineFlag = "";
 			CurIndex = 0;
 			BlockSize = 1024;
 		}
 	}
+	override public void StartThread()
+	{
+		if (!CheckStringValid(SplitLineFlag))
+		{
+			TickEvent = ReplaceTickProcess;
+		}
+		else
+		{
+			TickEvent = SplitLinesTickProcess;
+		}
+
+		m_th = new Thread(ThreadTick);
+		Enable = true;
+		m_th.Start();
+	}
+
 	override protected bool TickProcess()
+	{
+		lock (lockObj)
+		{
+			bool bRet = false;
+			if (null != TickEvent)
+			{
+				bRet = TickEvent();
+			}
+			return bRet;
+		}
+
+		return true;
+	}
+
+	public bool ReplaceTickProcess()
 	{
 		if (!CheckStringValid(FindKey))
 		{
@@ -92,16 +125,47 @@ public class WorkThread: ThreadBase
 			return false;
 		}
 
-		lock (lockObj)
+		
+		FinishList.Add(ElementList[CurIndex].Replace(FindKey, ReplaceWords));
+		CurIndex++;
+		FileSystem.Ins().AddCurrentFinishedBlock();
+		
+		return true;
+	}
+
+	public bool SplitLinesTickProcess()
+	{
+		if (!CheckStringValid(SplitLineFlag))
 		{
-			//string strOut = "";
-			//ReplaceCharContent(ElementList[CurIndex], ref strOut);
-			//FinishList.Add(strOut);
-			FinishList.Add(ElementList[CurIndex].Replace(FindKey, ReplaceWords));
-			CurIndex++;
-			FileSystem.Ins().AddCurrentFinishedBlock();
+			return false;
+		}
+
+		if (CurIndex >= ElementCount)
+		{
+			return false;
+		}
+
+		string[] arrLines = ElementList[CurIndex].Split(new string[] { SplitLineFlag }, 0);
+		if (FinishList.Count > 0)
+		{
+			FinishList[FinishList.Count - 1] += arrLines[0];
+			for (int i = 1; i < arrLines.Length; i++)
+			{
+				FinishList.Add(arrLines[i]);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < arrLines.Length; i++)
+			{
+				FinishList.Add(arrLines[i]);
+			}
 		}
 		
+		
+		CurIndex++;
+		FileSystem.Ins().AddCurrentFinishedBlock();
+
 		return true;
 	}
 
@@ -167,14 +231,14 @@ public class WorkThread: ThreadBase
 		}
 		lock(lockObj)
 		{
-			FileSystem.CodeType codeType = FileSystem.Ins().m_eFileCodeType;
-			string strTemp = "";
-			if (!FileSystem.Ins().GetDestString(Words, (int)codeType, ref strTemp))
-			{
-				return false;
-			}
+			//FileSystem.CodeType codeType = FileSystem.Ins().m_eFileCodeType;
+			//string strTemp = "";
+			//if (!FileSystem.Ins().GetDestString(Words, (int)codeType, ref strTemp))
+			//{
+			//	return false;
+			//}
 
-			FindKey = strTemp;
+			FindKey = Words;
 			byte[] arrContent = System.Text.Encoding.Default.GetBytes(FindKey);
 			for (int i = 0; i < arrContent.Length; i++)
 			{
@@ -194,20 +258,20 @@ public class WorkThread: ThreadBase
 
 		lock(lockObj)
 		{
-			//if (Words.Contains("\\"))
-			//{
-			//	ReplaceWords = Words.Replace("\")
-			//}
+			if (Words.Contains("\\"))
+			{
+				
+			}
 			if (Words.Length > 0)
 			{
-				FileSystem.CodeType codeType = FileSystem.Ins().m_eFileCodeType;
-				string strTemp = "";
-				if (!FileSystem.Ins().GetDestString(Words, (int)codeType, ref strTemp))
-				{
-					return false;
-				}
+				//FileSystem.CodeType codeType = FileSystem.Ins().m_eFileCodeType;
+				//string strTemp = "";
+				//if (!FileSystem.Ins().GetDestString(Words, (int)codeType, ref strTemp))
+				//{
+				//	return false;
+				//}
 
-				ReplaceWords = strTemp;
+				ReplaceWords = Words;
 				byte[] arrContent = System.Text.Encoding.Default.GetBytes(ReplaceWords);
 				for (int i = 0; i < arrContent.Length; i++)
 				{
@@ -215,6 +279,16 @@ public class WorkThread: ThreadBase
 				}
 			}
 		}
+		return true;
+	}
+
+	public bool SetSplitLineFlag(string Words)
+	{
+		if (!CheckStringValid(Words))
+		{
+			return false;
+		}
+		SplitLineFlag = Words;
 		return true;
 	}
 
@@ -245,24 +319,12 @@ public class WorkThread: ThreadBase
 		int ContentSize = strContent.Length;
 		int blockCount = (ContentSize / BlockSize) + 1;
 
-		for (int i = 0; i < blockCount; i++)
+		Dictionary<int, string> FullTextContent = new Dictionary<int, string>();
+		FileSystem.Ins().ConstructOpContentString(BlockSize, blockCount, SplitLineFlag, strContent, ref FullTextContent);
+
+		foreach(KeyValuePair<int, string> var in FullTextContent)
 		{
-			int startPos = i * BlockSize;
-			string strTempString = "";
-			if (startPos > ContentSize)
-			{
-				break;
-			}
-			else if (startPos + BlockSize >= ContentSize)
-			{
-				strTempString = tempString.Substring(startPos);
-			}
-			else
-			{
-				strTempString = tempString.Substring(startPos, BlockSize);
-			}
-			
-			ElementList.Add(strTempString);
+			ElementList.Add(var.Value);
 		}
 
 		CurIndex = 0;
@@ -281,6 +343,31 @@ public class WorkThread: ThreadBase
 		for(int i = 0; i < ElementCount; i++)
 		{
 			strContent += FinishList[i];
+		}
+
+		return true;
+	}
+
+	public bool GetSplitDone(ref List<string> listOut)
+	{
+		if (null == listOut)
+		{
+			return false;
+		}
+
+		if (FinishList.Count <= 0)
+		{
+			return true;
+		}
+
+		if (listOut.Count > 0)
+		{
+			listOut[listOut.Count - 1] += FinishList[0];
+		}
+
+		for(int i = 1; i < FinishList.Count; i++)
+		{
+			listOut.Add(FinishList[i]);
 		}
 
 		return true;

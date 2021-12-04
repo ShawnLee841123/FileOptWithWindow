@@ -5,18 +5,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-
+public delegate bool WorkThreadTickEvent();
 public class ThreadBase
 {
 	protected Thread m_th;
 
-	public int SleepTime;	//	million second
+	public int SleepTime;   //	million second
 
+	public WorkThreadTickEvent TickEvent;
 	public int nIndex { get; protected set; }
 	public bool Enable { get; protected set; }
 
 	public ThreadBase()
 	{
+		TickEvent = null;
 	}
 
 	public void SetThreadEnable(bool bEnable)
@@ -29,7 +31,7 @@ public class ThreadBase
 		nIndex = id;
 	}
 
-	public void StartThread()
+	virtual public void StartThread()
 	{
 		m_th = new Thread(ThreadTick);
 		Enable = true;
@@ -53,7 +55,12 @@ public class ThreadBase
 	{
 		string strOut = string.Format("Thread[{0}]: Working.", nIndex);
 		System.Console.WriteLine(strOut);
-		return false;
+		bool bRet = false;
+		if (null != TickEvent)
+		{
+			bRet = TickEvent();
+		}
+		return bRet;
 	}
 
 	public bool CheckStringValid(string strValue)
