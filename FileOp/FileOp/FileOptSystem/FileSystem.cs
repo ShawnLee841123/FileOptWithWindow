@@ -120,8 +120,6 @@ public class FileSystem : Singleton<FileSystem>
 		m_strFileContent = strContent;
 		
 		Program.MyWindow.Invoke(Program.MyWindow.UpdateFileContent, m_strFileContent);
-		//Program.MyWindow.FileContentBox.Text = FileSystem.Ins().m_strFileContent;
-		//m_eFileCodeType = (CodeType)GetStringCode(m_strFileContent);
 		return true;
 	}
 
