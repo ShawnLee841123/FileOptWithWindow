@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 public delegate void UpdateProgressValue(int nValue);
 public delegate void ResetDisplayText(string strText);
-	
+public delegate void SetShowText(string strText);
 public partial class Form1 : Form
 {
 	public Form1()
@@ -19,10 +19,12 @@ public partial class Form1 : Form
 		InitializeComponent();
 		UpdateValue = this.UpdateShowValue;
 		UpdateText = this.UpdateShowText;
+		UpdateFileContent = this.SetEditBoxContent;
 	}
 
 	public UpdateProgressValue UpdateValue;
 	public ResetDisplayText UpdateText;
+	public SetShowText UpdateFileContent;
 
 	private void btnFind_Click(object sender, EventArgs e)
 	{
@@ -40,8 +42,9 @@ public partial class Form1 : Form
 		{
 			FileSystem.Ins().SetFileName(openFileDialog.FileName);
 			this.FileName.Text = FileSystem.Ins().m_strFileName;
-			FileReader.Ins().ReadFileByLine(FileSystem.Ins().m_strFileName, FileSystem.Ins().AddFileStringLine);
-			this.FileContentBox.Text = FileSystem.Ins().m_strFileContent;
+			//FileReader.Ins().ReadFileByLine(FileSystem.Ins().m_strFileName, FileSystem.Ins().AddFileStringLine);
+			//this.FileContentBox.Text = FileSystem.Ins().m_strFileContent;
+			FileSystem.Ins().ReadFile();
 		}
 	}
 

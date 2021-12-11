@@ -12,6 +12,8 @@ public class ThreadBase
 
 	public int SleepTime;   //	million second
 
+	protected object lockObj;
+
 	public WorkThreadTickEvent TickEvent;
 	public int nIndex { get; protected set; }
 	public bool Enable { get; protected set; }
@@ -19,6 +21,7 @@ public class ThreadBase
 	public ThreadBase()
 	{
 		TickEvent = null;
+		lockObj = new object();
 	}
 
 	public void SetThreadEnable(bool bEnable)

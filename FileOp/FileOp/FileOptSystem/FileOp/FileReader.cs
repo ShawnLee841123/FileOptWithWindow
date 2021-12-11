@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,6 +28,8 @@ public class FileReader: Singleton<FileReader>
 			StreamReader pReader = new StreamReader(pFileStream);
 			if (null == pReader)
 				return ReadFileResultType.RFRT_ERROR_FILE_STREAM_FAILED;
+
+			long fileSize = pFileStream.Length;
 
 			while (!pReader.EndOfStream)
 			{

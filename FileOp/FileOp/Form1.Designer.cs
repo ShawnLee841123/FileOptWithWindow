@@ -232,6 +232,9 @@ public partial class Form1
 
 	public void UpdateShowValue(int nValue)
 	{
+		if (nValue >= 100)
+			nValue = 100;
+
 		ProgressBar.Value = nValue;
 		ProgressValue.Text = string.Format("{0}%", nValue);
 	}
@@ -239,6 +242,11 @@ public partial class Form1
 	public void UpdateShowText(string strValue)
 	{
 		FileContentBox.Text = strValue;
+	}
+
+	public void SetEditBoxContent(string strText)
+	{
+		FileContentBox.Text = strText;
 	}
 	#endregion
 
@@ -249,7 +257,7 @@ public partial class Form1
 	private System.Windows.Forms.TextBox ReplaceBox;
 	private System.Windows.Forms.Button btnTakePlace;
 	private System.Windows.Forms.Button btnTakePlaceAll;
-	private System.Windows.Forms.TextBox FileContentBox;
+	public System.Windows.Forms.TextBox FileContentBox;
 	private System.Windows.Forms.Button btnOpenFile;
 	private System.Windows.Forms.Label FileName;
 	private System.Windows.Forms.Label label3;

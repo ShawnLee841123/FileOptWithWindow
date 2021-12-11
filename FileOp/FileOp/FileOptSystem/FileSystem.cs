@@ -24,11 +24,11 @@ public class FileSystem : Singleton<FileSystem>
 	#endregion
 
 	#region Base File Info
-	public string m_strFileName { get; protected set; }				//	file name
+	public string m_strFileName { get; protected set; }             //	file name
 	public string m_strFileContent { get; protected set; }          //	file content
 	public string m_strTempContent { get; protected set; }
-	public int m_nContentStringSize { get; protected set; }			//	base file size
-	public int m_uFileLines { get; protected set; }					//	base file lines count number
+	public int m_nContentStringSize { get; protected set; }         //	base file size
+	public int m_uFileLines { get; protected set; }                 //	base file lines count number
 	public List<string> m_listFileLines { get; protected set; }     //	base file lines content
 
 	public List<string> m_listFinishedLines;
@@ -49,6 +49,8 @@ public class FileSystem : Singleton<FileSystem>
 
 	public CodeType m_eFileCodeType { get; protected set; }
 	//public Dictionary<int, List<char>> m_dicCharThreadContent { get; protected set; }
+
+	public ReadThread m_pReader;
 	#endregion
 
 	#endregion
@@ -86,6 +88,15 @@ public class FileSystem : Singleton<FileSystem>
 			m_listFinishedLines.Clear();
 		}
 
+		if (null == m_pReader)
+		{
+			m_pReader = new ReadThread();
+		}
+		else
+		{
+			m_pReader.Reset();
+		}
+
 		BlockCount = 0;
 		CurFinished = 0;
 		m_eFileCodeType = CodeType.CT_ASCII;
@@ -107,7 +118,26 @@ public class FileSystem : Singleton<FileSystem>
 			return false;
 
 		m_strFileContent = strContent;
-		m_eFileCodeType = (CodeType)GetStringCode(m_strFileContent);
+		
+		Program.MyWindow.Invoke(Program.MyWindow.UpdateFileContent, m_strFileContent);
+		//Program.MyWindow.FileContentBox.Text = FileSystem.Ins().m_strFileContent;
+		//m_eFileCodeType = (CodeType)GetStringCode(m_strFileContent);
+		return true;
+	}
+
+	public bool ReadFile(string strFileName = "")
+	{
+		string strReadName = strFileName;
+		if (strReadName.Equals(""))
+		{
+			strReadName = m_strFileName;
+		}
+
+		if (null != m_pReader)
+		{
+			m_pReader.BeginRead(strReadName);
+		}
+			
 		return true;
 	}
 

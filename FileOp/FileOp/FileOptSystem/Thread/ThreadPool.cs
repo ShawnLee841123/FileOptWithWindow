@@ -60,8 +60,6 @@ public class ThreadPool: Singleton<ThreadPool>
 		return true;
 	}
 
-	
-
 	virtual public bool StartWork()
 	{
 		if (m_Pool.Count <= 0)

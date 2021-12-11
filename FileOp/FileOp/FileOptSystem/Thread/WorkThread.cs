@@ -20,8 +20,6 @@ public class WorkThread: ThreadBase
 
 	public int BlockSize { get; protected set; }
 
-	protected object lockObj = new object();
-
 	public WorkThread()
 	{
 		Reset();
@@ -29,7 +27,11 @@ public class WorkThread: ThreadBase
 
 	public void Reset()
 	{
-		
+		if (null == lockObj)
+		{
+			lockObj = new object();
+		}
+
 		lock(lockObj)
 		{
 			if (null != ElementList)
