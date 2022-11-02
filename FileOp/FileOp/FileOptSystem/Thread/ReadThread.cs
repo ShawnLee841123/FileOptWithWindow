@@ -126,6 +126,10 @@ public class ReadThread: ThreadBase
 					}
 				}
 			}
+
+			pReader.Dispose();
+			pReader.Close();
+			pReader = null;
 		}
 
 		FileSystem.Ins().SetFileContent(FileContent);

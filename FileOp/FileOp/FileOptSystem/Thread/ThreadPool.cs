@@ -153,7 +153,7 @@ public class ThreadPool: Singleton<ThreadPool>
 			((WorkThread)m_Pool[i]).SetFindKeyWords(FileSystem.Ins().m_strKeyWords);
 			((WorkThread)m_Pool[i]).SetReplaceWords(FileSystem.Ins().m_strReplaceWords);
 			((WorkThread)m_Pool[i]).SetWorkingContent(FullTextContent[i]);
-			m_Pool[i].SleepTime = 100;
+			m_Pool[i].SleepTime = 10;
 
 			BlockCount += ((WorkThread)m_Pool[i]).ElementCount;
 		}
