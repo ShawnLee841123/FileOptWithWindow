@@ -47,6 +47,8 @@ public partial class Form1
 			this.label4 = new System.Windows.Forms.Label();
 			this.btnSaveLineFlag = new System.Windows.Forms.Button();
 			this.LineFlagInput = new System.Windows.Forms.TextBox();
+			this.ThreadCountText = new System.Windows.Forms.TextBox();
+			this.label5 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// FindKeyBox
@@ -201,11 +203,30 @@ public partial class Form1
 			this.LineFlagInput.Size = new System.Drawing.Size(265, 21);
 			this.LineFlagInput.TabIndex = 16;
 			// 
+			// ThreadCountText
+			// 
+			this.ThreadCountText.Location = new System.Drawing.Point(621, 43);
+			this.ThreadCountText.Name = "ThreadCountText";
+			this.ThreadCountText.Size = new System.Drawing.Size(40, 21);
+			this.ThreadCountText.TabIndex = 17;
+			this.ThreadCountText.Text = "10";
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(529, 45);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(77, 12);
+			this.label5.TabIndex = 18;
+			this.label5.Text = "Thread Count";
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1236, 708);
+			this.Controls.Add(this.label5);
+			this.Controls.Add(this.ThreadCountText);
 			this.Controls.Add(this.LineFlagInput);
 			this.Controls.Add(this.btnSaveLineFlag);
 			this.Controls.Add(this.label4);
@@ -267,6 +288,8 @@ public partial class Form1
 	private System.Windows.Forms.Label label4;
 	private System.Windows.Forms.Button btnSaveLineFlag;
 	private System.Windows.Forms.TextBox LineFlagInput;
+	private System.Windows.Forms.TextBox ThreadCountText;
+	private System.Windows.Forms.Label label5;
 }
 
 

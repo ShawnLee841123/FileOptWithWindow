@@ -81,5 +81,36 @@ public class FileReader: Singleton<FileReader>
 
 		return ReadFileResultType.RFRT_SUCCESS;
 	}
+
+	public ReadFileResultType ReadFileByBuffer(string strFile, int nBufferSize, Action<byte[]> pFunc)
+	{
+		if (!CheckStringValid(strFile))
+		{
+			return ReadFileResultType.RFRT_ERROR_FILE_NAME;
+		}
+
+		using(FileStream pFileStream = new FileStream(strFile, FileMode.Open))
+		{
+			if (null == pFileStream)
+				return ReadFileResultType.RFRT_ERROR_FILE_OPEN_FAILED;
+
+			BufferedStream pBufReader = new BufferedStream(pFileStream);
+			long fileSize = pBufReader.Length;
+			byte[] readBuf = new byte[nBufferSize];
+			int nBufRead = 0;
+			while((nBufRead = pBufReader.Read(readBuf, nBufRead, nBufferSize)) > 0)
+			{
+				pFunc(readBuf);
+			}
+
+			pBufReader.Dispose();
+			pBufReader.Close();
+			pBufReader = null;
+
+			pFileStream.Dispose();
+			pFileStream.Close();
+		}
+		return ReadFileResultType.RFRT_SUCCESS;
+	}
 }
 

@@ -13,7 +13,12 @@ public class ReadThread: ThreadBase
 
 	public string FileContent { get; protected set; }
 
+	public Dictionary<int, string> DicContent { get; protected set; }
+
 	public int WaitLines { get; protected set; }
+
+	public int BlockCount { get; protected set; }
+	
 	public ReadThread()
 	{
 		Reset();
@@ -33,6 +38,16 @@ public class ReadThread: ThreadBase
 
 		m_th = null;
 		WaitLines = 150;
+		BlockCount = 0;
+		if (null == DicContent)
+		{
+			DicContent = new Dictionary<int, string>();
+		}
+		else
+		{
+			DicContent.Clear();
+		}
+		
 	}
 
 	public void SetFileName(string strValue)
@@ -43,8 +58,14 @@ public class ReadThread: ThreadBase
 	public void BeginRead(string strValue)
 	{
 		SetFileName(strValue);
-		m_th = new Thread(ReadFile);
+		//m_th = new Thread(ReadFile);
+		m_th = new Thread(ReadFileToBlock);
 		m_th.Start();
+	}
+
+	public void SetBlockCount(int nCount)
+	{
+		BlockCount = nCount;
 	}
 
 	public Encoding GetCoding(string strLine)
@@ -87,7 +108,9 @@ public class ReadThread: ThreadBase
 
 	public void ReadFile()
 	{
-		
+		watch = new System.Diagnostics.Stopwatch();
+		watch.Reset();
+		watch.Start();
 		using (FileStream pFileStream = new FileStream(FileName, FileMode.Open))
 		{
 			StreamReader pReader = new StreamReader(pFileStream);
@@ -122,7 +145,7 @@ public class ReadThread: ThreadBase
 					if (ReadLine >= WaitLines)
 					{
 						ReadLine = 0;
-						Thread.Sleep(3);
+						//Thread.Sleep(3);
 					}
 				}
 			}
@@ -131,6 +154,74 @@ public class ReadThread: ThreadBase
 			pReader.Close();
 			pReader = null;
 		}
+		watch.Stop();
+
+		FileSystem.Ins().SetFileContent(FileContent);
+		m_th.Join();
+		return;
+	}
+
+	public void ReadFileToBlock()
+	{
+		watch = new System.Diagnostics.Stopwatch();
+		watch.Reset();
+		watch.Start();
+		using (FileStream pFileStream = new FileStream(FileName, FileMode.Open))
+		{
+			StreamReader pReader = new StreamReader(pFileStream);
+			if (null == pReader)
+			{
+				return;
+			}
+
+			long lByteCount = pFileStream.Length;
+			long lCurRead = 0;
+			long lCurBlockRead = 0;
+			int ReadLine = 0;
+			int CurrentBlock = 0;
+			long lAverageSize = (lByteCount / BlockCount) + 1u;
+			DicContent.Add(CurrentBlock, "");
+			Encoding code = Encoding.Default;
+			lock (lockObj)
+			{
+				string strCurLine = "";
+				
+				while (!pReader.EndOfStream)
+				{
+					strCurLine = pReader.ReadLine();
+					if (code == Encoding.Default)
+					{
+						code = GetCoding(strCurLine);
+					}
+
+					DicContent[CurrentBlock] += strCurLine;
+					int curByte = code.GetBytes(strCurLine).Length;
+					lCurRead += curByte;
+					lCurBlockRead += curByte;
+
+					int percent = (int)((lCurRead * 100) / lByteCount);
+					Program.MyWindow.Invoke(Program.MyWindow.UpdateValue, percent);
+
+					if (lCurBlockRead >= lAverageSize)
+					{
+						CurrentBlock++;
+						DicContent.Add(CurrentBlock, "");
+						lCurBlockRead = 0;
+					}
+				}
+			}
+
+			pReader.Dispose();
+			pReader.Close();
+			pReader = null;
+		}
+
+		for(int i = 0; i < BlockCount; i++)
+		{
+			FileContent += DicContent[i];
+		}
+
+		watch.Stop();
 
 		FileSystem.Ins().SetFileContent(FileContent);
 		m_th.Join();

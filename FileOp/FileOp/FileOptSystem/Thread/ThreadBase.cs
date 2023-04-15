@@ -4,10 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 public delegate bool WorkThreadTickEvent();
 public class ThreadBase
 {
+	protected Stopwatch watch;
+
 	protected Thread m_th;
 
 	public int SleepTime;   //	million second

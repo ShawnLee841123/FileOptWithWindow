@@ -133,6 +133,7 @@ public class FileSystem : Singleton<FileSystem>
 
 		if (null != m_pReader)
 		{
+			m_pReader.SetBlockCount(BlockCount);
 			m_pReader.BeginRead(strReadName);
 		}
 			

@@ -44,6 +44,9 @@ public partial class Form1 : Form
 			this.FileName.Text = FileSystem.Ins().m_strFileName;
 			//FileReader.Ins().ReadFileByLine(FileSystem.Ins().m_strFileName, FileSystem.Ins().AddFileStringLine);
 			//this.FileContentBox.Text = FileSystem.Ins().m_strFileContent;
+			int nBlockCount = Convert.ToInt32(ThreadCountText.Text);
+			nBlockCount = nBlockCount > 10 ? nBlockCount : 10;
+			FileSystem.Ins().SetContentBlockCount(nBlockCount);
 			FileSystem.Ins().ReadFile();
 		}
 	}
@@ -53,7 +56,8 @@ public partial class Form1 : Form
 		FileSystem.Ins().SwitchCatchContent();
 		FileSystem.Ins().SetOperatedKeyWords(this.FindKeyBox.Text);
 		FileSystem.Ins().SetOperatedReplaceWords(this.ReplaceBox.Text);
-		int nBlockCount = 12;
+		int nBlockCount = Convert.ToInt32(ThreadCountText.Text);
+		nBlockCount = nBlockCount > 10 ? nBlockCount : 10;
 		//int nSize = FileSystem.Ins().AverageStringInThread(nBlockCount);
 		//Dictionary<int, string> tempContent = new Dictionary<int, string>();
 		//FileSystem.Ins().ConstructOpContentString(nSize, nBlockCount, ref tempContent);
@@ -100,7 +104,8 @@ public partial class Form1 : Form
 	{
 		FileSystem.Ins().SwitchCatchContent();
 		FileSystem.Ins().SetLineFlag(this.LineFlagInput.Text);
-		int nBlockCount = 12;
+		int nBlockCount = Convert.ToInt32(ThreadCountText.Text);
+		nBlockCount = nBlockCount > 10 ? nBlockCount : 10;
 		ThreadPool.Ins().CreateThreads(nBlockCount);
 		ThreadPool.Ins().SplitLinerWorkProcess();
 		ThreadPool.Ins().StartWork();
