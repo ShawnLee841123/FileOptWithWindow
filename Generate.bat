@@ -8,7 +8,7 @@
 ::@set VSSBDir=VS_ServerBase
 
 
-@set ProRoot=E:\Works\GitWork\CMakeTest\CMakeTest
+@set ProRoot=E:\Works\GitWork\FileOptWithWindow
 
 ::md %VSCLDir%
 ::cd %VSCLDir%
