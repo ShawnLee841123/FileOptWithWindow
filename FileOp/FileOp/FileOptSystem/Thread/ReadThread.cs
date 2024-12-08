@@ -18,6 +18,8 @@ public class ReadThread: ThreadBase
 	public int WaitLines { get; protected set; }
 
 	public int BlockCount { get; protected set; }
+
+	public Encoding EncodeType { get; protected set; }
 	
 	public ReadThread()
 	{
@@ -150,6 +152,7 @@ public class ReadThread: ThreadBase
 				}
 			}
 
+			EncodeType = code;
 			pReader.Dispose();
 			pReader.Close();
 			pReader = null;
@@ -166,6 +169,11 @@ public class ReadThread: ThreadBase
 		watch = new System.Diagnostics.Stopwatch();
 		watch.Reset();
 		watch.Start();
+		if (DicContent.Count > 0)
+		{
+			DicContent.Clear();
+		}
+
 		using (FileStream pFileStream = new FileStream(FileName, FileMode.Open))
 		{
 			StreamReader pReader = new StreamReader(pFileStream);
@@ -211,6 +219,7 @@ public class ReadThread: ThreadBase
 				}
 			}
 
+			EncodeType = code;
 			pReader.Dispose();
 			pReader.Close();
 			pReader = null;
