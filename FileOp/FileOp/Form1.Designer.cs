@@ -49,6 +49,7 @@ public partial class Form1
 			this.LineFlagInput = new System.Windows.Forms.TextBox();
 			this.ThreadCountText = new System.Windows.Forms.TextBox();
 			this.label5 = new System.Windows.Forms.Label();
+			this.ExtraMode = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// FindKeyBox
@@ -115,6 +116,7 @@ public partial class Form1
 			// 
 			// FileContentBox
 			// 
+			this.FileContentBox.AcceptsReturn = true;
 			this.FileContentBox.Location = new System.Drawing.Point(3, 101);
 			this.FileContentBox.Multiline = true;
 			this.FileContentBox.Name = "FileContentBox";
@@ -220,11 +222,23 @@ public partial class Form1
 			this.label5.TabIndex = 18;
 			this.label5.Text = "Thread Count";
 			// 
+			// ExtraMode
+			// 
+			this.ExtraMode.AutoSize = true;
+			this.ExtraMode.Location = new System.Drawing.Point(695, 45);
+			this.ExtraMode.Name = "ExtraMode";
+			this.ExtraMode.Size = new System.Drawing.Size(198, 16);
+			this.ExtraMode.TabIndex = 19;
+			this.ExtraMode.Text = "ExtraMode(Include: \\r \\n ...)";
+			this.ExtraMode.UseVisualStyleBackColor = true;
+			this.ExtraMode.CheckedChanged += new System.EventHandler(this.ExtraMode_CheckedChanged);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1236, 708);
+			this.Controls.Add(this.ExtraMode);
 			this.Controls.Add(this.label5);
 			this.Controls.Add(this.ThreadCountText);
 			this.Controls.Add(this.LineFlagInput);
@@ -290,6 +304,7 @@ public partial class Form1
 	private System.Windows.Forms.TextBox LineFlagInput;
 	private System.Windows.Forms.TextBox ThreadCountText;
 	private System.Windows.Forms.Label label5;
+	private System.Windows.Forms.CheckBox ExtraMode;
 }
 
 

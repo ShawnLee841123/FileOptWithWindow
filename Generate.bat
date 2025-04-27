@@ -8,7 +8,7 @@
 ::@set VSSBDir=VS_ServerBase
 
 
-@set ProRoot=E:\Works\GitWork\FileOptWithWindow
+::@set ProRoot=E:\Works\GitWork\FileOptWithWindow
 
 ::md %VSCLDir%
 ::cd %VSCLDir%
@@ -36,10 +36,10 @@
 ::cd ..
 
 
-
+@set ProRoot=%CD%
 @set ProPath=FileOp
 @set BuildPath=VSSln
 
 md %BuildPath%
 cd %BuildPath%
-cmake -G"Visual Studio 16 2019" %ProRoot%\%ProPath% -DBINARY_DIR=%ProRoot%\%BuildPath% -A x64
+cmake -G"Visual Studio 17 2022" %ProRoot%\%ProPath% -DBINARY_DIR=%ProRoot%\%BuildPath% -A x64

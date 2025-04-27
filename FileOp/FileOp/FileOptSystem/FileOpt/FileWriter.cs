@@ -24,6 +24,7 @@ public class FileWriter: Singleton<FileWriter>
 		using (FileStream pFileStream = new FileStream(strFileName, FileMode.OpenOrCreate))
 		{
 			byte[] arrContent = System.Text.Encoding.Default.GetBytes(strFileContent);
+			//byte[] arrContent = FileSystem.Ins().m_efileEncodeType.GetBytes(strFileContent);
 			int nCount = arrContent.Length;
 			pFileStream.Write(arrContent, 0, nCount);
 			pFileStream.Flush();
@@ -42,6 +43,26 @@ public class FileWriter: Singleton<FileWriter>
 		using (FileStream pFileStream = new FileStream(strFileName, FileMode.OpenOrCreate))
 		{
 			byte[] arrContent = System.Text.Encoding.Default.GetBytes(strFileContent);
+			//byte[] arrContent = FileSystem.Ins().m_efileEncodeType.GetBytes(strFileContent);
+			int nCount = arrContent.Length;
+			pFileStream.Write(arrContent, 0, nCount);
+			pFileStream.Flush();
+		}
+		return WriteFileResultType.WFRT_SUCCESS;
+	}
+
+	public WriteFileResultType WriteFileWithEncodingType(string strFileName, string strFileContent, Encoding EncodeType)
+	{
+		if (!CheckStringValid(strFileName))
+			return WriteFileResultType.WFRT_ERROR_FILE_NAME;
+
+		if (!CheckStringValid(strFileContent))
+			return WriteFileResultType.WFRT_ERROR_CONTENT;
+
+		using (FileStream pFileStream = new FileStream(strFileName, FileMode.OpenOrCreate))
+		{
+			//byte[] arrContent = System.Text.Encoding.Default.GetBytes(strFileContent);
+			byte[] arrContent = EncodeType.GetBytes(strFileContent);
 			int nCount = arrContent.Length;
 			pFileStream.Write(arrContent, 0, nCount);
 			pFileStream.Flush();
@@ -61,6 +82,30 @@ public class FileWriter: Singleton<FileWriter>
 		{
 			StreamWriter pWriter = new StreamWriter(pFileStream);
 			for(int i = 0; i < arrLines.Length; i++)
+			{
+				pWriter.WriteLine(arrLines[i]);
+			}
+
+			pWriter.Flush();
+			pFileStream.Flush();
+			pWriter.Dispose();
+			pWriter.Close();
+		}
+		return WriteFileResultType.WFRT_SUCCESS;
+	}
+
+	public WriteFileResultType WriteFileInLinesWithEncodingType(string strFileName, string[] arrLines, Encoding EncodeType)
+	{
+		if (!CheckStringValid(strFileName))
+			return WriteFileResultType.WFRT_ERROR_FILE_NAME;
+
+		if (!CheckArrayValid(arrLines))
+			return WriteFileResultType.WFRT_ERROR_CONTENT;
+
+		using (FileStream pFileStream = new FileStream(strFileName, FileMode.OpenOrCreate))
+		{
+			StreamWriter pWriter = new StreamWriter(pFileStream, EncodeType);
+			for (int i = 0; i < arrLines.Length; i++)
 			{
 				pWriter.WriteLine(arrLines[i]);
 			}

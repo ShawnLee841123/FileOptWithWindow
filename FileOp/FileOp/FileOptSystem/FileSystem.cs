@@ -49,6 +49,7 @@ public class FileSystem : Singleton<FileSystem>
 
 	public CodeType m_eFileCodeType { get; protected set; }
 	//public Dictionary<int, List<char>> m_dicCharThreadContent { get; protected set; }
+	public Encoding m_efileEncodeType { get; protected set; }
 
 	public ReadThread m_pReader;
 	#endregion
@@ -166,6 +167,14 @@ public class FileSystem : Singleton<FileSystem>
 		}
 
 		return true;
+	}
+
+	public void SetFileEncodingType(Encoding encodeType)
+	{
+		lock (lockObject)
+		{
+			m_efileEncodeType = encodeType;
+		}
 	}
 
 	public void SetOperatedKeyWords(string strKey)

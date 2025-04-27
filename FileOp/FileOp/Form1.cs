@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-
 public delegate void UpdateProgressValue(int nValue);
 public delegate void ResetDisplayText(string strText);
 public delegate void SetShowText(string strText);
@@ -25,6 +24,7 @@ public partial class Form1 : Form
 	public UpdateProgressValue UpdateValue;
 	public ResetDisplayText UpdateText;
 	public SetShowText UpdateFileContent;
+	public int DefaultThreadCount = 1;
 
 	private void btnFind_Click(object sender, EventArgs e)
 	{
@@ -45,7 +45,7 @@ public partial class Form1 : Form
 			//FileReader.Ins().ReadFileByLine(FileSystem.Ins().m_strFileName, FileSystem.Ins().AddFileStringLine);
 			//this.FileContentBox.Text = FileSystem.Ins().m_strFileContent;
 			int nBlockCount = Convert.ToInt32(ThreadCountText.Text);
-			nBlockCount = nBlockCount > 10 ? nBlockCount : 10;
+			nBlockCount = nBlockCount > DefaultThreadCount ? nBlockCount : DefaultThreadCount;
 			FileSystem.Ins().SetContentBlockCount(nBlockCount);
 			FileSystem.Ins().ReadFile();
 		}
@@ -54,10 +54,47 @@ public partial class Form1 : Form
 	private void BtnTakePlaceAll_Click(object sender, EventArgs e)
 	{
 		FileSystem.Ins().SwitchCatchContent();
-		FileSystem.Ins().SetOperatedKeyWords(this.FindKeyBox.Text);
-		FileSystem.Ins().SetOperatedReplaceWords(this.ReplaceBox.Text);
+
+		string strKeyString = this.FindKeyBox.Text;
+		if (this.ExtraMode.Checked)
+		{
+			if (strKeyString.Contains("\\r"))
+			{
+				strKeyString = strKeyString.Replace("\\r", "\r");
+			}
+
+			if (strKeyString.Contains("\\n"))
+			{
+				strKeyString = strKeyString.Replace("\\n", "\n");
+			}
+		}
+
+		char[] arrKeyBytes = strKeyString.ToCharArray();
+		byte[] arrKeyFileCodeByte = FileSystem.Ins().m_efileEncodeType.GetBytes(arrKeyBytes);
+		string strKeyFileCodeString = FileSystem.Ins().m_efileEncodeType.GetString(arrKeyFileCodeByte);
+		FileSystem.Ins().SetOperatedKeyWords(strKeyFileCodeString);
+
+		string strReplaceString = this.ReplaceBox.Text;
+		if (this.ExtraMode.Checked)
+		{
+			if (strReplaceString.Contains("\\r"))
+			{
+				strReplaceString = strReplaceString.Replace("\\r", "\r");
+			}
+
+			if (strReplaceString.Contains("\\n"))
+			{
+				strReplaceString = strReplaceString.Replace("\\n", "\n");
+			}
+		}
+
+		char[] arrReplaceBytes = strReplaceString.ToCharArray();
+		byte[] arrReplaceFileCodeByte = FileSystem.Ins().m_efileEncodeType.GetBytes(arrReplaceBytes);
+		string strReplaceFileCodeString = FileSystem.Ins().m_efileEncodeType.GetString(arrReplaceFileCodeByte);
+
+		FileSystem.Ins().SetOperatedReplaceWords(strReplaceFileCodeString);
 		int nBlockCount = Convert.ToInt32(ThreadCountText.Text);
-		nBlockCount = nBlockCount > 10 ? nBlockCount : 10;
+		nBlockCount = nBlockCount > DefaultThreadCount ? nBlockCount : DefaultThreadCount;
 		//int nSize = FileSystem.Ins().AverageStringInThread(nBlockCount);
 		//Dictionary<int, string> tempContent = new Dictionary<int, string>();
 		//FileSystem.Ins().ConstructOpContentString(nSize, nBlockCount, ref tempContent);
@@ -92,23 +129,33 @@ public partial class Form1 : Form
 			string[] arrFileLines = FileSystem.Ins().m_listFinishedLines.ToArray();
 			if (FileSystem.Ins().CheckArrayValid(arrFileLines))
 			{
-				FileWriter.Ins().WriteFileInLines(outName, arrFileLines);
+				//FileWriter.Ins().WriteFileInLines(outName, arrFileLines);
+				FileWriter.Ins().WriteFileInLinesWithEncodingType(outName, arrFileLines, FileSystem.Ins().m_efileEncodeType);
 				return;
 			}
 		}
 
-		FileWriter.Ins().WriteFile(outName, FileSystem.Ins().m_strFileContent);
+		FileWriter.Ins().WriteFileWithEncodingType(outName, FileSystem.Ins().m_strFileContent, FileSystem.Ins().m_efileEncodeType);
 	}
 
 	private void btnSaveLineFlag_Click(object sender, EventArgs e)
 	{
 		FileSystem.Ins().SwitchCatchContent();
-		FileSystem.Ins().SetLineFlag(this.LineFlagInput.Text);
+
+		char[] arrLineFlagBytes = this.LineFlagInput.Text.ToCharArray();
+		byte[] arrLineFlagFileCodeByte = FileSystem.Ins().m_efileEncodeType.GetBytes(arrLineFlagBytes);
+		string strLineFlagFileCodeString = FileSystem.Ins().m_efileEncodeType.GetString(arrLineFlagFileCodeByte);
+		FileSystem.Ins().SetLineFlag(strLineFlagFileCodeString);
 		int nBlockCount = Convert.ToInt32(ThreadCountText.Text);
-		nBlockCount = nBlockCount > 10 ? nBlockCount : 10;
+		nBlockCount = nBlockCount > DefaultThreadCount ? nBlockCount : DefaultThreadCount;
 		ThreadPool.Ins().CreateThreads(nBlockCount);
 		ThreadPool.Ins().SplitLinerWorkProcess();
 		ThreadPool.Ins().StartWork();
+	}
+
+	private void ExtraMode_CheckedChanged(object sender, EventArgs e)
+	{
+
 	}
 }
 

@@ -150,9 +150,10 @@ public class ReadThread: ThreadBase
 						//Thread.Sleep(3);
 					}
 				}
+				EncodeType = code;
 			}
 
-			EncodeType = code;
+			
 			pReader.Dispose();
 			pReader.Close();
 			pReader = null;
@@ -160,6 +161,7 @@ public class ReadThread: ThreadBase
 		watch.Stop();
 
 		FileSystem.Ins().SetFileContent(FileContent);
+		FileSystem.Ins().SetFileEncodingType(EncodeType);
 		m_th.Join();
 		return;
 	}
@@ -217,9 +219,11 @@ public class ReadThread: ThreadBase
 						lCurBlockRead = 0;
 					}
 				}
+
+				EncodeType = code;
 			}
 
-			EncodeType = code;
+			
 			pReader.Dispose();
 			pReader.Close();
 			pReader = null;
@@ -233,6 +237,7 @@ public class ReadThread: ThreadBase
 		watch.Stop();
 
 		FileSystem.Ins().SetFileContent(FileContent);
+		FileSystem.Ins().SetFileEncodingType(EncodeType);
 		m_th.Join();
 		return;
 	}
